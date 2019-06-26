@@ -307,12 +307,6 @@
     <Reference Include="SyntaxTree.VisualStudio.Unity.Bridge">
       <HintPath>C:/Program Files (x86)/Microsoft Visual Studio Tools for Unity/15.0/Editor/SyntaxTree.VisualStudio.Unity.Bridge.dll</HintPath>
     </Reference>
-    <Reference Include="BCCrypto">
-      <HintPath>C:/dev/Unityu/New Unity Project/Assets/BCCrypto.dll</HintPath>
-    </Reference>
-    <Reference Include="Netcode.IO.NET">
-      <HintPath>C:/dev/Unityu/New Unity Project/Assets/Netcode.IO.NET.dll</HintPath>
-    </Reference>
     <Reference Include="Mono.CecilX">
       <HintPath>C:/dev/Unityu/New Unity Project/Assets/Mirror/Plugins/Mono.Cecil/Mono.CecilX.dll</HintPath>
     </Reference>
