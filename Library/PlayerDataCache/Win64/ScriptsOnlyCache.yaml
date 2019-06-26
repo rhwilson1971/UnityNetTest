@@ -1773,4 +1773,4 @@ ScriptsOnlyBuild:
   platform: 19
   scenePathNames:
   - Assets/Scenes/SampleScene.unity
-  playerPath: C:/dev/Unityu/New Unity Project/Release_Builds/Server/Test123.exe
+  playerPath: C:/dev/Unityu/New Unity Project/Release_Builds/Client/Test123.exe

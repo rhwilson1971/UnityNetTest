@@ -6,8 +6,8 @@ using UnityEngine;
 
 public class NetworkClient
 {
+    private bool _isLocal = false;
     readonly TcpClient _client;
-
     readonly byte[] buffer = new byte[5000];
 
     NetworkStream Stream
@@ -22,6 +22,7 @@ public class NetworkClient
         _client = client;
         if (isConnected)
         {
+            _isLocal = true;
             _client.NoDelay = true;
             NetworkMan1.instance._Text.text = "S: Client connected to this server";
             Stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
@@ -69,7 +70,6 @@ public class NetworkClient
         
         var client = (TcpClient)ar.AsyncState;
 
-
         client.EndConnect(ar);
 
         NetworkMan1.instance._Text.text = "This client has connected to the network server";
@@ -82,8 +82,32 @@ public class NetworkClient
         NetworkMan1.instance._Text.text = "Sending a message maybe";
 
         Debug.Log("Send message from client to server ");
-        byte[] buffer = System.Text.Encoding.UTF8.GetBytes(message);
-        _client.GetStream().Write(buffer, 0, buffer.Length);
+        byte[] data = System.Text.Encoding.UTF8.GetBytes(message);
+
+        if (_client == null)
+        {
+            NetworkMan1.instance._Text.text = "Send: Client is null";
+            return;
+        }
+
+        var stream = _client.GetStream();
+
+        if (stream == null)
+        {
+            NetworkMan1.instance._Text.text = "Send: Stream is null";
+            return;
+        }
+
+        // setup async reading before sending the message, since connection blocks
+        if (_isLocal == false) // this is a remote client connecting to a TCP Server 
+        {
+            NetworkMan1.instance._Text.text = "Setup the read buffer";
+            stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
+        }
+
+        //NetworkMan1.instance._Text.text = string.Format("Buffer length is {0}", data.Length);
+        stream.Write(data, 0, data.Length);
+        stream.Flush();
     }
 
     public bool IsConnected()

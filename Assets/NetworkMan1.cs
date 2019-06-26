@@ -17,12 +17,12 @@ public class NetworkMan1: MonoBehaviour
     public string _message;
     #endregion
 
+    #region Private Vars
     private int _port = 30982;
     private string _ipAddress = "127.0.0.1";
 
-
     TcpListener _listener;
-    TcpClient _client;
+    #endregion
 
     List<NetworkClient> _clientList = new List<NetworkClient>();
 
@@ -30,18 +30,15 @@ public class NetworkMan1: MonoBehaviour
 
     public static string message;
     private string oldMessage;
-    // ManualResetEvent connectDone = new ManualResetEvent(false);
-
-    //public bool isServer;
-    //[SerializeField] private int listenPort;
 
     private void Awake()
     {
         instance = this;
         Debug.Log("Is server? " + _IsServer);
-        if(_IsServer == true)
+
+        if (_IsServer == true)
         {
-            Startup();
+            StartupServer();
         }
         else
         {
@@ -62,13 +59,13 @@ public class NetworkMan1: MonoBehaviour
         _Text.text = _message;
     }
 
-    public void Startup()
+    public void StartupServer()
     {
         if (_IsServer)
         {
             ListenForConnections();
         }
-        else
+        else // 
         {
             Debug.Log("Ima a client");
             _Text.text = "I'm a client";
@@ -77,13 +74,16 @@ public class NetworkMan1: MonoBehaviour
 
     public void ListenForConnections()
     {
+        // Security.PrefetchSocketPolicy(_ipAddress, _port);
         Debug.Log("Listen for connections ");
         _message = "Listening for connections";
         IPAddress ipAddress = IPAddress.Parse(_ipAddress);
         _listener = new TcpListener(ipAddress, _port);
         _listener.Start();
-        _listener.BeginAcceptTcpClient(OnServerConnect, null); // async fnction
-        _Text.text = "Non blocking Listening for connections";
+
+        _Text.text = "Asynchronously listening for connections";
+        _listener.BeginAcceptTcpClient(OnServerConnect, null); // async function
+        
     }
 
     public void OnServerConnect(IAsyncResult ar)
@@ -108,12 +108,16 @@ public class NetworkMan1: MonoBehaviour
 
     public void StartupClient()
     {
+        if (_IsServer)
+        {
+            return;
+        }
+
         _Text.text = "Starting up the network client";
         Debug.Log("Startup client");
 
         IPAddress ipAddress = IPAddress.Parse(_ipAddress);
         TcpClient client = new TcpClient();
-        // IPAddress[] remoteHost = Dns.GetHostAddresses("localhost");
         
         NetworkClient connectedClient = new NetworkClient(client, false);
 
@@ -133,15 +137,16 @@ public class NetworkMan1: MonoBehaviour
 
     public void SendToClients(string message)
     {
+        Debug.Log("Sending a message to the clients from the server ");
         _Text.text = "Sending a message back to the clients";
-        if ( !_IsServer )
+        if ( !_IsServer || string.IsNullOrEmpty(message))
             return;
 
-        _Text.text = "Sending a message back to the clients again # " + _clientList.Count; 
+        _Text.text = 
+            string.Format("Sending a message back to the clients again - connected client count: {0}" , _clientList.Count); 
 
         foreach (var client in _clientList)
         {
-            // _Text.text = "Sent";
             client.Send(message);
         }
     }
