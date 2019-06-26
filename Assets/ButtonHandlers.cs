@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using RMSIDCUTILS.NetCommander;
 
 public class ButtonHandlers : MonoBehaviour
 {
-    public NetworkMan1 _NetworkManager;
+    public NetworkManager _NetworkManager;
 
     public InputField _MyMessage;
 
