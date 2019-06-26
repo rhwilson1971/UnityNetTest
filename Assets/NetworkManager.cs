@@ -12,6 +12,7 @@ namespace RMSIDCUTILS.NetCommander
     public class NetworkManager : MonoBehaviour
     {
         #region Editor Properties
+        [Header("Connection Properties")]
         public bool _IsServer;
         public int _Port;
         public string _IpAddress;
@@ -170,5 +171,28 @@ namespace RMSIDCUTILS.NetCommander
                 }
             }
         }
+    }
+
+    public class ConnectInfo
+    {
+        public bool IsServer { get; set; }
+        public string HostOrIP { get; set; }
+        public ushort Port { get; set; }
+
+        public static IPAddress GetIPAddress(string hostOrAddress)
+        {
+            IPAddress returnedIP = null;
+            var ips =
+                Dns.GetHostAddresses(hostOrAddress);
+
+            foreach (var ip in ips)
+            {
+                returnedIP = ip;
+                Debug.Log(string.Format("The resolved ip address from {0} is {1} ", hostOrAddress, ip.ToString()));
+            }
+
+            return returnedIP;
+        }
+
     }
 }
