@@ -91,7 +91,7 @@
     <Compile Include="Assets\Mirror\Examples\Tanks\Scripts\Tank.cs" />
     <Compile Include="Assets\MoveCube.cs" />
     <Compile Include="Assets\NetworkClient.cs" />
-    <Compile Include="Assets\NetworkManager.cs" />
+    <Compile Include="Assets\NetworkServer.cs" />
     <Compile Include="Assets\TextUpdateScript.cs" />
     <None Include="Assets\Mirror\Readme.txt" />
     <None Include="Assets\Mirror\License.txt" />

@@ -7,9 +7,22 @@ using System.Threading;
 using System;
 using UnityEngine.UI;
 
-namespace RMSIDCUTILS.NetCommander
+namespace RMSIDCUTILS.Network
 {
-    public class NetworkManager : MonoBehaviour
+    public interface INetworkServer
+    { 
+        void StartupClient();
+        void StartupServer();
+
+        void SendToClients(string message);
+        void SendToServer(string message);
+
+        void OnDataReceived(object sender, DataReceivedEvent e);
+        void OnServerConnect(IAsyncResult ar);
+        void OnClientDisconnected(NetworkClient client);
+    }
+
+    public class NetworkServer : MonoBehaviour, INetworkServer
     {
         #region Editor Properties
         [Header("Connection Properties")]
@@ -29,10 +42,7 @@ namespace RMSIDCUTILS.NetCommander
 
         List<NetworkClient> _clientList = new List<NetworkClient>();
 
-        public static NetworkManager instance;
-
-        public static string message;
-        private string oldMessage;
+        public static NetworkServer instance;
 
         private void Awake()
         {
@@ -47,19 +57,6 @@ namespace RMSIDCUTILS.NetCommander
             {
                 StartupClient();
             }
-        }
-
-        private void Update()
-        {
-            Debug.Log("Not update?");
-            if (message != oldMessage)
-            {
-                Debug.Log(message);
-                oldMessage = message;
-            }
-
-            Debug.Log("Updateing?");
-            _Text.text = _message;
         }
 
         public void StartupServer()
@@ -86,7 +83,6 @@ namespace RMSIDCUTILS.NetCommander
 
             _Text.text = "Asynchronously listening for connections";
             _listener.BeginAcceptTcpClient(OnServerConnect, null); // async function
-
         }
 
         public void OnServerConnect(IAsyncResult ar)
@@ -98,14 +94,35 @@ namespace RMSIDCUTILS.NetCommander
             NetworkClient nc = new NetworkClient(client);
             _clientList.Add(nc);
 
+            nc.DataReceived += OnDataReceived;
+
             Debug.Log("Listen for further connections");
             _listener.BeginAcceptTcpClient(OnServerConnect, null);
         }
 
-        public void OnDisconnect(NetworkClient client)
+        public void OnDataReceived(object sender, DataReceivedEvent e)
+        {
+            Debug.Log("I got a message " + e.Data);
+
+            if(e.Data.StartsWith("id"))
+            {
+                var guid = Guid.Parse(e.Data.Split(':')[1]);
+                _Text.text = guid.ToString();
+
+                var cli = _clientList.Find(c => c.ClientID == guid);
+
+                if (cli != null)
+                    _clientList.Remove(cli);
+            }
+
+            _Text.text = "I go me a message! " + e.Data;
+        }
+
+        public void OnClientDisconnected(NetworkClient client)
         {
             Debug.Log("removing network client");
             _Text.text = "Client Diconnected";
+            client.DataReceived -= OnDataReceived;
             _clientList.Remove(client);
         }
 
@@ -123,19 +140,10 @@ namespace RMSIDCUTILS.NetCommander
             TcpClient client = new TcpClient();
 
             NetworkClient connectedClient = new NetworkClient(client, false);
+            connectedClient.DataReceived += OnDataReceived;
 
             _clientList.Add(connectedClient);
             client.BeginConnect(ipAddress, _port, (ar) => connectedClient.EndConnect(ar), null);
-        }
-
-        public void Send(string address, int port, string message)
-        {
-            byte[] buffer = System.Text.Encoding.UTF8.GetBytes(message);
-
-            TcpClient client = new TcpClient(address, port);
-            NetworkStream stream = client.GetStream();
-
-            stream.Write(buffer, 0, buffer.Length);
         }
 
         public void SendToClients(string message)

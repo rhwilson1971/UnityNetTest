@@ -4,20 +4,36 @@ using System.Collections.Generic;
 using System.Net.Sockets;
 using UnityEngine;
 
-namespace RMSIDCUTILS.NetCommander
+namespace RMSIDCUTILS.Network
 {
     public class NetworkClient
     {
+        #region Local Properties
         private bool _isLocal = false;
         readonly TcpClient _client;
         readonly byte[] buffer = new byte[5000];
+        readonly ConnectInfo _connectInfo;
 
         NetworkStream Stream
         {
             get { return _client.GetStream(); }
         }
+        #endregion  
 
-        public NetworkClient(TcpClient client, bool isConnected = true)
+        public Guid ClientID { get; set; }
+        public event EventHandler<DataReceivedEvent> DataReceived;
+
+        public NetworkClient()
+        {
+            ClientID = Guid.NewGuid();
+        }
+
+        public NetworkClient(ConnectInfo info) : base()
+        {
+            _connectInfo = info ?? throw new ArgumentNullException("info", "The info object should contain a reference to a ConnectionInfo instance");
+        }
+
+        public NetworkClient(TcpClient client, bool isConnected = true) : base()
         {
             Debug.Log("Initializing network client");
 
@@ -26,9 +42,9 @@ namespace RMSIDCUTILS.NetCommander
             {
                 _isLocal = true;
                 _client.NoDelay = true;
-                NetworkManager.instance._Text.text = "S: Client connected to this server";
+                // NetworkManager.instance._Text.text = "S: Client connected to this server";
                 Stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
-                NetworkManager.instance._Text.text = "S: Read ended";
+                // NetworkManager.instance._Text.text = "S: Read ended";
             }
         }
 
@@ -42,20 +58,34 @@ namespace RMSIDCUTILS.NetCommander
             NetworkManager.instance._Text.text = "S: Block on EndRead";
             int length = Stream.EndRead(ar);
             if (length <= 0)
-            { // Connection closed
-                NetworkManager.instance._Text.text = "S: Connection Closed";
-                NetworkManager.instance.OnDisconnect(this);
+            {
+                // NetworkManager.instance._Text.text = "S: Connection Closed";
+                // NetworkManager.instance.OnClientDisconnected(this);
+
+                // <message type="Disconnected">{0}</message>
+                // <message type="{0}" id="{1}">{2}</message>
+                // <message type="event" id="{0}">Ready</message>
+                // <message type="event" id="{0}">Connected</message>
+                // <message type="action" id="">Play</message>
+                // <message type="action" id="">Pause</message>
+                // <message type="action" id="">Rewind</message>
+
+
+                OnDataReceived(new DataReceivedEvent(string.Format("id:{0}", ClientID.ToString())));
                 return;
             }
 
             NetworkManager.instance._Text.text = "S: Reading data";
             string newMessage = System.Text.Encoding.UTF8.GetString(buffer, 0, length);
-            NetworkManager.message += newMessage + Environment.NewLine;
+            // NetworkManager.message += newMessage + Environment.NewLine;
 
             var receivedData = System.Text.Encoding.Default.GetString(buffer);
 
             Debug.Log("Recieved message " + buffer);
-            NetworkManager.instance._Text.text = "S: Got some data. " + receivedData;
+            //NetworkManager.instance._Text.text = "S: Got some data. " + receivedData;
+
+            OnDataReceived(new DataReceivedEvent(receivedData));
+
             // Look for more data from the server
             Stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
         }
@@ -117,5 +147,23 @@ namespace RMSIDCUTILS.NetCommander
             return _client != null ? _client.Connected : false;
         }
 
+        // Wrap event invocations inside a protected virtual method
+        // to allow derived classes to override the event invocation behavior
+        protected virtual void OnDataReceived(DataReceivedEvent e)
+        {
+            // Make a temporary copy of the event to avoid possibility of
+            // a race condition if the last subscriber unsubscribes
+            // immediately after the null check and before the event is raised.
+            DataReceived?.Invoke(this, e);
+        }
+    }
+
+    public class DataReceivedEvent : EventArgs
+    {
+        public DataReceivedEvent(string data)
+        {
+            Data = data;
+        }
+        public string Data { get; private set; }
     }
 }
