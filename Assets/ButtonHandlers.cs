@@ -6,7 +6,7 @@ using RMSIDCUTILS.Network;
 
 public class ButtonHandlers : MonoBehaviour
 {
-    public NetworkServer _NetworkManager;
+    public NetworkService _NetworkManager;
 
     public InputField _MyMessage;
 
@@ -15,13 +15,32 @@ public class ButtonHandlers : MonoBehaviour
         if (_NetworkManager != null)
         {
             Debug.Log("ToServer");
-            _NetworkManager.SendToServer(_MyMessage.text);
+
+            var message = new PrimeNetMessage
+            {
+                Data = _MyMessage.text,
+                NetMessage = EPrimeNetMessage.Generic
+            };
+
+            _NetworkManager.Broadcast(message);
+
+
+            // _NetworkManager.SendToServer(_MyMessage.text);
         }
     }
 
     public void ToClient_OnClick()
     {
         Debug.Log("To Client");
-        _NetworkManager.SendToClients(_MyMessage.text);
+
+        var message = new PrimeNetMessage
+        {
+            Data = _MyMessage.text,
+            NetMessage = EPrimeNetMessage.Generic
+        };
+
+        _NetworkManager.Broadcast(message);
+
+        // _NetworkManager.SendToClients(_MyMessage.text);
     }
 }

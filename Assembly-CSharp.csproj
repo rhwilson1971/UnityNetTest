@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\ButtonHandlers.cs" />
+    <Compile Include="Assets\DisplayNetworkUpdates.cs" />
     <Compile Include="Assets\Mirror\Components\NetworkAnimator.cs" />
     <Compile Include="Assets\Mirror\Components\NetworkLobbyManager.cs" />
     <Compile Include="Assets\Mirror\Components\NetworkLobbyPlayer.cs" />
@@ -90,8 +91,9 @@
     <Compile Include="Assets\Mirror\Examples\Tanks\Scripts\Projectile.cs" />
     <Compile Include="Assets\Mirror\Examples\Tanks\Scripts\Tank.cs" />
     <Compile Include="Assets\MoveCube.cs" />
+    <Compile Include="Assets\NetManager.cs" />
     <Compile Include="Assets\NetworkClient.cs" />
-    <Compile Include="Assets\NetworkServer.cs" />
+    <Compile Include="Assets\NetworkService.cs" />
     <Compile Include="Assets\TextUpdateScript.cs" />
     <None Include="Assets\Mirror\Readme.txt" />
     <None Include="Assets\Mirror\License.txt" />

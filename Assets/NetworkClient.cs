@@ -12,7 +12,7 @@ namespace RMSIDCUTILS.Network
         private bool _isLocal = false;
         readonly TcpClient _client;
         readonly byte[] buffer = new byte[5000];
-        readonly ConnectInfo _connectInfo;
+        readonly ConnectionInfo _connectInfo;
 
         NetworkStream Stream
         {
@@ -21,6 +21,7 @@ namespace RMSIDCUTILS.Network
         #endregion  
 
         public Guid ClientID { get; set; }
+
         public event EventHandler<DataReceivedEvent> DataReceived;
 
         public NetworkClient()
@@ -28,7 +29,7 @@ namespace RMSIDCUTILS.Network
             ClientID = Guid.NewGuid();
         }
 
-        public NetworkClient(ConnectInfo info) : base()
+        public NetworkClient(ConnectionInfo info) : base()
         {
             _connectInfo = info ?? throw new ArgumentNullException("info", "The info object should contain a reference to a ConnectionInfo instance");
         }
@@ -55,7 +56,9 @@ namespace RMSIDCUTILS.Network
 
         void OnRead(IAsyncResult ar)
         {
-            NetworkManager.instance._Text.text = "S: Block on EndRead";
+            NetworkService.instance._Text.text = "Received data from network";
+            Debug.Log("Beginning to receive data");
+            //NetworkService.instance._Text.text = "S: Block on EndRead";
             int length = Stream.EndRead(ar);
             if (length <= 0)
             {
@@ -75,19 +78,17 @@ namespace RMSIDCUTILS.Network
                 return;
             }
 
-            NetworkManager.instance._Text.text = "S: Reading data";
             string newMessage = System.Text.Encoding.UTF8.GetString(buffer, 0, length);
-            // NetworkManager.message += newMessage + Environment.NewLine;
-
             var receivedData = System.Text.Encoding.Default.GetString(buffer);
 
-            Debug.Log("Recieved message " + buffer);
-            //NetworkManager.instance._Text.text = "S: Got some data. " + receivedData;
-
+            Debug.Log("Recieved message " + receivedData);
+            NetworkService.instance._Text.text = "Here's the message from network " + receivedData;
             OnDataReceived(new DataReceivedEvent(receivedData));
 
             // Look for more data from the server
+            Array.Clear(buffer, 0, buffer.Length);
             Stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
+            // NetworkService.instance._Text.text = "Async read initiated";
         }
 
         /// <summary>
@@ -98,27 +99,32 @@ namespace RMSIDCUTILS.Network
         internal void EndConnect(IAsyncResult ar)
         {
             Debug.Log("Client Connected");
-            NetworkManager.instance._Text.text = "This client is starting the network connection";
+            //NetworkService.instance._Text.text = "This client is starting the network connection";
 
             var client = (TcpClient)ar.AsyncState;
 
             client.EndConnect(ar);
 
-            NetworkManager.instance._Text.text = "This client has connected to the network server";
+            //NetworkService.instance._Text.text = "This client has connected to the network server";
             Debug.Log("Client connect ended");
             Stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
         }
 
+        public void Send()
+        {
+
+        }
+
+
         public void Send(string message)
         {
-            NetworkManager.instance._Text.text = "Sending a message maybe";
-
+            //StatusMessage(EPrimeNetMessage.Generic, "Sending a message from Network Client to server");
             Debug.Log("Send message from client to server ");
             byte[] data = System.Text.Encoding.UTF8.GetBytes(message);
 
             if (_client == null)
             {
-                NetworkManager.instance._Text.text = "Send: Client is null";
+                //StatusMessage(EPrimeNetMessage.Generic, "Send: Client is null");
                 return;
             }
 
@@ -126,14 +132,15 @@ namespace RMSIDCUTILS.Network
 
             if (stream == null)
             {
-                NetworkManager.instance._Text.text = "Send: Stream is null";
+                //NetworkService.instance._Text.text = "Send: Stream is null";
                 return;
             }
 
             // setup async reading before sending the message, since connection blocks
             if (_isLocal == false) // this is a remote client connecting to a TCP Server 
             {
-                NetworkManager.instance._Text.text = "Setup the read buffer";
+                Debug.Log("Re-registering?");
+                //NetworkService.instance._Text.text = "Setup the read buffer";
                 stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
             }
 
