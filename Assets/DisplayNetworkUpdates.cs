@@ -8,20 +8,20 @@ public class DisplayNetworkUpdates : MonoBehaviour
 {
     [Header("Network Updates")]
     public Text _DisplayText;
-    public NetworkService _NetService;
+    public PrimeNetServer _NetService;
 
     // Start is called before the first frame update
     void Start()
     {
-        _NetService.NetworkMessageReceived += _NetService_NetworkMessageReceived;
+        _NetService.NetworkMessageReceived += OnNetworkMessageRecieved;
         Debug.Log("Registering for net message");
         _DisplayText.text = "Registering for new net messages";
     }
 
-    private void _NetService_NetworkMessageReceived(object sender, NetworkMessageEvent e)
+    private void OnNetworkMessageRecieved(object sender, NetworkMessageEvent e)
     {
         var netMessage = e.Data;
-        _DisplayText.text = netMessage.Data;
+        _DisplayText.text = netMessage.MessageBody;
         Debug.Log("got net message");
     }
 
