@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace RMSIDCUTILS.Network
 {
@@ -33,16 +34,30 @@ namespace RMSIDCUTILS.Network
 		public bool _IsManager;
 		public string _HostNameOrIP;
 		public uint _Port;
-		#endregion
-		
-		#region Private Properties
-		PrimeNetServer _networkService=null;
+        public Text _Text;
+        #endregion
+
+        #region Private Properties
+        static PrimeNetService _instance = null;
+		PrimeNetServer _networkServer=null;
 		ConnectionInfo _conn=null;
 		Queue<PrimeNetMessage> _messageQueue = new Queue<PrimeNetMessage>();
 		#endregion
 		
 		#region Public Properties
 		public bool IsRunning;
+        public static PrimeNetService Instance
+        {
+            get
+            {
+                if( _instance == null )
+                {
+                    _instance = new PrimeNetService();
+                }
+
+                return _instance;
+            }
+        }
 		#endregion
 		
 		#region Constructors
@@ -58,31 +73,30 @@ namespace RMSIDCUTILS.Network
 			if(IsRunning) return;
 
             _conn = new ConnectionInfo(_IsManager, _Port, _HostNameOrIP );
-			_networkService = new PrimeNetServer(_conn);
-			_networkService.NetworkMessageReceived += HandleMessageReceived;
-            _networkService.Startup();
+			_networkServer = new PrimeNetServer(_conn);
+			_networkServer.NetworkMessageReceived += HandleMessageReceived;
+            _networkServer.Startup();
 			IsRunning = true;
 		}
 		
 		public void Broadcast(PrimeNetMessage m)
 		{
 			if(!IsRunning) return;
-			_networkService.Broadcast(m);
+			_networkServer.Broadcast(m);
 		}
 
         public void StopServer()
 		{
 			if(!IsRunning) return;
-			_networkService.Shutdown();
+			_networkServer.Shutdown();
 		}
 
         public void Send(Guid id, PrimeNetMessage message)
 		{
 			if(!IsRunning) return;
-			_networkService.Send(id, message);
+			_networkServer.Send(id, message);
 		}
         #endregion
-
 
         public void ProcessIncommingMessages()
         {
@@ -99,5 +113,32 @@ namespace RMSIDCUTILS.Network
         {
             throw new NotImplementedException("not implemented yet");
         }
-	}
+
+        private void HandleNetworkMessage(object sender, NetworkMessageEvent e)
+        {
+            _Text.text = e.Data.MessageBody;
+        }
+
+        #region Unity
+        private void Awake()
+        {
+            if (_networkServer == null)
+            {
+                _conn = new ConnectionInfo()
+                {
+                    HosHostAddress = IPAddress.Parse(_HostNameOrIP),
+                    IsServer = _IsManager,
+                    Port = _Port == 0 ? ConnectionInfo.DefaultPort : _Port,
+                    Protocol = 0
+                };
+
+                _networkServer = new PrimeNetServer(_conn);
+                _networkServer.NetworkMessageReceived += HandleNetworkMessage;
+                _networkServer.Startup();
+            }
+        }
+        #endregion
+
+
+    }
 }

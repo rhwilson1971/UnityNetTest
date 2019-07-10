@@ -30,7 +30,6 @@ namespace RMSIDCUTILS.Network
         public bool _IsServer;
         public int _Port;
         public string _IpAddress;
-        public Text _Text;
         public string _message;
         #endregion
 
@@ -66,14 +65,14 @@ namespace RMSIDCUTILS.Network
 
         private void Awake()
         {
-            instance = this;
-            Debug.Log("Is server? " + _IsServer);
+            //instance = this;
+            //Debug.Log("Is server? " + _IsServer);
 
-            _conn.IsServer = _IsServer;
-            _conn.HosHostAddress = IPAddress.Parse(_IpAddress);
-            _conn.Port = (uint)_Port;
+            //_conn.IsServer = _IsServer;
+            //_conn.HosHostAddress = IPAddress.Parse(_IpAddress);
+            //_conn.Port = (uint)_Port;
 
-            Startup();
+            //Startup();
         }
 
         public void Startup()
@@ -104,13 +103,13 @@ namespace RMSIDCUTILS.Network
 
             // _Text.text = "Asynchronously listening for connections";
 
-            StatusMessage(EPrimeNetMessage.ServerConnected, "Asynchronously listening for connections");
+            StatusMessage("Asynchronously listening for connections");
             _listener.BeginAcceptTcpClient(OnServerConnect, null); // async function
         }
 
         public void OnServerConnect(IAsyncResult ar)
         {
-            StatusMessage(EPrimeNetMessage.ClientConnected, "A client is connecting");
+            StatusMessage("A client is connecting");
 
             Debug.Log("Client connecting");
             TcpClient client = _listener.EndAcceptTcpClient(ar);
@@ -128,17 +127,13 @@ namespace RMSIDCUTILS.Network
             Debug.Log("Got a message from a network client ");
             var netMsg = PrimeNetMessage.Deserialize(e.Data);
             Debug.Log("message desrialized");
-            _Text.text = netMsg.MessageBody;
-
-            
-
             HandleNetworkMessage(new NetworkMessageEvent(netMsg));
         }
 
         public void OnClientDisconnected(PrimeNetClient client)
         {
             Debug.Log("removing network client");
-            StatusMessage(EPrimeNetMessage.ClientDisconnected, "Client Diconnected");
+            StatusMessage("Client Diconnected");
             client.DataReceived -= OnDataReceived;
             _clientList.Remove(client);
         }
@@ -150,7 +145,7 @@ namespace RMSIDCUTILS.Network
                 return;
             }
 
-            StatusMessage(EPrimeNetMessage.ClientReady, "Starting up the network client");
+            StatusMessage("Starting up the network client");
             Debug.Log("Startup client");
 
             TcpClient client = new TcpClient();
@@ -166,13 +161,13 @@ namespace RMSIDCUTILS.Network
         {
             Debug.Log("Sending a message to the clients from the server ");
             
-            StatusMessage(EPrimeNetMessage.Generic, "Sending a message back to the clients");
+            StatusMessage("Sending a message back to the clients");
             if (!_IsServer || string.IsNullOrEmpty(message))
                 return;
 
             var status =
                 string.Format("Sending a message back to the clients again - connected client count: {0}", _clientList.Count);
-            StatusMessage(EPrimeNetMessage.Generic, status);
+            StatusMessage(status);
 
             foreach (var client in _clientList)
             {
@@ -261,11 +256,11 @@ namespace RMSIDCUTILS.Network
             }
         }
 
-        public void StatusMessage(EPrimeNetMessage status, string statusText)
+        public void StatusMessage(string statusText)
         {
-            //PrimeNetMessage message = new PrimeNetMessage() { Data = statusText, NetMessage = status };
-            // HandleNetworkMessage(new NetworkMessageEvent(message));
-            _Text.text = statusText;
+            var message = new PrimeNetMessage() { NetMessage = EPrimeNetMessage.Status, MessageBody = statusText };
+
+            HandleNetworkMessage(new NetworkMessageEvent(message));
         }
     }
 
@@ -282,7 +277,8 @@ namespace RMSIDCUTILS.Network
         ServerReady,
         ServerConnected,
         ServerDisconnected,
-        Generic
+        Generic,
+        Status
     }
 
     public class PrimeNetMessage

@@ -4,9 +4,7 @@ ScriptsOnlyBuild:
     - ButtonHandlers
     - DisplayNetworkUpdates
     - MoveCube
-    - RMSIDCUTILS.Network.NetworkService
-    UnityEditor.TestRunner.dll:
-    - UnityEditor.TestTools.TestRunner.TestListCacheData
+    - RMSIDCUTILS.Network.PrimeNetServer
     UnityEngine.UI.dll:
     - UnityEngine.EventSystems.EventSystem
     - UnityEngine.EventSystems.StandaloneInputModule
@@ -47,29 +45,29 @@ ScriptsOnlyBuild:
     - Class: 108
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 9366}
-    - Class: 114
-      Script: {instanceID: 9428}
-    - Class: 114
-      Script: {instanceID: 9430}
-    - Class: 114
       Script: {instanceID: 9436}
     - Class: 114
-      Script: {instanceID: 9442}
+      Script: {instanceID: 9490}
     - Class: 114
-      Script: {instanceID: 9450}
+      Script: {instanceID: 9492}
     - Class: 114
-      Script: {instanceID: 9452}
+      Script: {instanceID: 9498}
     - Class: 114
-      Script: {instanceID: 9486}
+      Script: {instanceID: 9504}
     - Class: 114
-      Script: {instanceID: 9488}
+      Script: {instanceID: 9512}
     - Class: 114
-      Script: {instanceID: 9776}
+      Script: {instanceID: 9514}
     - Class: 114
-      Script: {instanceID: 10406}
+      Script: {instanceID: 9548}
     - Class: 114
-      Script: {instanceID: 10468}
+      Script: {instanceID: 9550}
+    - Class: 114
+      Script: {instanceID: 9810}
+    - Class: 114
+      Script: {instanceID: 10392}
+    - Class: 114
+      Script: {instanceID: 10452}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -137,7 +135,7 @@ ScriptsOnlyBuild:
     className: PlayerController
   - hash:
       serializedVersion: 2
-      Hash: 1c28ee7bc7b3011d698caaa790f686ab
+      Hash: abb1c310d90201500f2928fe8a52f87c
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: DisplayNetworkUpdates
@@ -363,6 +361,18 @@ ScriptsOnlyBuild:
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
     className: TMP_InputField
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: UnityEngine.Advertisements.dll
+    namespaceName: UnityEngine.Advertisements
+    className: CallbackExecutor
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: UnityEngine.Advertisements.dll
+    namespaceName: UnityEngine.Advertisements.Editor
+    className: Placeholder
   - hash:
       serializedVersion: 2
       Hash: cf9f5cf2c3145a37ac07f00e50e460f9
@@ -596,7 +606,7 @@ ScriptsOnlyBuild:
       Hash: ab3d01470602f224cad974b8f4479ded
     assemblyName: Assembly-CSharp.dll
     namespaceName: RMSIDCUTILS.Network
-    className: NetworkService
+    className: PrimeNetServer
   - hash:
       serializedVersion: 2
       Hash: 780e8f682b3221346c034a6712a0fd25
@@ -1133,13 +1143,19 @@ ScriptsOnlyBuild:
     className: LLAPITransport
   - hash:
       serializedVersion: 2
+      Hash: 46ae7b12ea1f5dd12c078f13e1d57dd9
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: RMSIDCUTILS.Network
+    className: PrimeNetService
+  - hash:
+      serializedVersion: 2
       Hash: 6e2e691db307b7cf62d0e54898be641f
     assemblyName: Assembly-CSharp.dll
     namespaceName: Mirror
     className: NetworkAnimator
   - hash:
       serializedVersion: 2
-      Hash: d2682c947bdb6eac7f060f1557effe5c
+      Hash: b1f9ec2a0a18ba49aaf7de912b55fe4a
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: ButtonHandlers
@@ -1169,7 +1185,7 @@ ScriptsOnlyBuild:
     className: SignalReceiver
   - hash:
       serializedVersion: 2
-      Hash: 4a0369cd366c126cd420018a4ac01f32
+      Hash: 35a9693c388776aaf487636491a20f11
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
     className: TMP_FontAsset

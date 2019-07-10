@@ -7,6 +7,7 @@ using RMSIDCUTILS.Network;
 public class ButtonHandlers : MonoBehaviour
 {
     public PrimeNetServer _NetworkManager;
+    public PrimeNetService _NetworkService;
 
     public InputField _MyMessage;
 
@@ -22,10 +23,9 @@ public class ButtonHandlers : MonoBehaviour
                 NetMessage = EPrimeNetMessage.Generic
             };
 
-            _NetworkManager.Broadcast(message);
-
-
+            // _NetworkManager.Broadcast(message);
             // _NetworkManager.SendToServer(_MyMessage.text);
+            _NetworkService.Broadcast(message);
         }
     }
 
@@ -39,8 +39,8 @@ public class ButtonHandlers : MonoBehaviour
             NetMessage = EPrimeNetMessage.Generic
         };
 
-        _NetworkManager.Broadcast(message);
-
+        _NetworkService.Broadcast(message);
+        // _NetworkManager.Broadcast(message);
         // _NetworkManager.SendToClients(_MyMessage.text);
     }
 }

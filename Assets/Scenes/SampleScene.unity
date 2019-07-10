@@ -504,7 +504,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acc3e669b2b581c459c573199b0c6789, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _NetworkManager: {fileID: 1167959968}
+  _NetworkManager: {fileID: 0}
+  _NetworkService: {fileID: 0}
   _MyMessage: {fileID: 85689030}
 --- !u!4 &164651895
 Transform:
@@ -613,7 +614,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _DisplayText: {fileID: 211889552}
-  _NetService: {fileID: 1167959968}
+  _NetService: {fileID: 0}
 --- !u!1 &238592332
 GameObject:
   m_ObjectHideFlags: 0
@@ -1057,7 +1058,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: acc3e669b2b581c459c573199b0c6789, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _NetworkManager: {fileID: 1167959968}
+  _NetworkManager: {fileID: 0}
+  _NetworkService: {fileID: 0}
   _MyMessage: {fileID: 0}
 --- !u!1 &936023181
 GameObject:
@@ -1259,16 +1261,16 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1167959966}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9ad450c37485a364b9b0bb977375b25a, type: 3}
+  m_Script: {fileID: 11500000, guid: 77aec2e84e24a70418c6a1d62d587202, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _IsServer: 0
-  _Port: 30892
-  _IpAddress: 127.0.0.1
+  _IsManager: 1
+  _HostNameOrIP: 127.0.0.1
+  _Port: 0
   _Text: {fileID: 1876789572}
-  _message: Startup
+  IsRunning: 0
 --- !u!1 &1367150420
 GameObject:
   m_ObjectHideFlags: 0
