@@ -123,9 +123,7 @@ namespace RMSIDCUTILS.Network
 
         public void ProcessIncommingMessages(PrimeNetMessage message)
         {
-
             _messageQueue.Enqueue(message);
-
             OnMessageAvailable(new EventArgs());
         }
 
