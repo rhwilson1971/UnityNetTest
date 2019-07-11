@@ -4,16 +4,24 @@ ScriptsOnlyBuild:
     - ButtonHandlers
     - DisplayNetworkUpdates
     - MoveCube
-    - RMSIDCUTILS.Network.PrimeNetServer
+    - RMSIDCUTILS.Network.PrimeNetService
+    - UpdateCanvasElements
+    UnityEditor.TestRunner.dll:
+    - UnityEditor.TestTools.TestRunner.TestListCacheData
     UnityEngine.UI.dll:
     - UnityEngine.EventSystems.EventSystem
     - UnityEngine.EventSystems.StandaloneInputModule
     - UnityEngine.UI.Button
     - UnityEngine.UI.CanvasScaler
+    - UnityEngine.UI.Dropdown
     - UnityEngine.UI.GraphicRaycaster
     - UnityEngine.UI.Image
     - UnityEngine.UI.InputField
+    - UnityEngine.UI.Mask
+    - UnityEngine.UI.ScrollRect
+    - UnityEngine.UI.Scrollbar
     - UnityEngine.UI.Text
+    - UnityEngine.UI.Toggle
   sceneClasses:
     Assets/Scenes/SampleScene.unity:
     - Class: 1
@@ -51,6 +59,8 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 9492}
     - Class: 114
+      Script: {instanceID: 9496}
+    - Class: 114
       Script: {instanceID: 9498}
     - Class: 114
       Script: {instanceID: 9504}
@@ -59,15 +69,25 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 9514}
     - Class: 114
+      Script: {instanceID: 9520}
+    - Class: 114
+      Script: {instanceID: 9538}
+    - Class: 114
+      Script: {instanceID: 9540}
+    - Class: 114
       Script: {instanceID: 9548}
     - Class: 114
       Script: {instanceID: 9550}
     - Class: 114
-      Script: {instanceID: 9810}
+      Script: {instanceID: 9552}
+    - Class: 114
+      Script: {instanceID: 10360}
     - Class: 114
       Script: {instanceID: 10392}
     - Class: 114
       Script: {instanceID: 10452}
+    - Class: 114
+      Script: {instanceID: 15738}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -135,7 +155,7 @@ ScriptsOnlyBuild:
     className: PlayerController
   - hash:
       serializedVersion: 2
-      Hash: abb1c310d90201500f2928fe8a52f87c
+      Hash: 8e93d055172c6066eec5c0c9cc3f4e9c
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: DisplayNetworkUpdates
@@ -361,18 +381,6 @@ ScriptsOnlyBuild:
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
     className: TMP_InputField
-  - hash:
-      serializedVersion: 2
-      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
-    assemblyName: UnityEngine.Advertisements.dll
-    namespaceName: UnityEngine.Advertisements
-    className: CallbackExecutor
-  - hash:
-      serializedVersion: 2
-      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
-    assemblyName: UnityEngine.Advertisements.dll
-    namespaceName: UnityEngine.Advertisements.Editor
-    className: Placeholder
   - hash:
       serializedVersion: 2
       Hash: cf9f5cf2c3145a37ac07f00e50e460f9
@@ -601,12 +609,6 @@ ScriptsOnlyBuild:
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
     className: TMP_SubMeshUI
-  - hash:
-      serializedVersion: 2
-      Hash: ab3d01470602f224cad974b8f4479ded
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: RMSIDCUTILS.Network
-    className: PrimeNetServer
   - hash:
       serializedVersion: 2
       Hash: 780e8f682b3221346c034a6712a0fd25
@@ -1143,7 +1145,7 @@ ScriptsOnlyBuild:
     className: LLAPITransport
   - hash:
       serializedVersion: 2
-      Hash: 46ae7b12ea1f5dd12c078f13e1d57dd9
+      Hash: c2af159c6d867e956ab0a4ee67caa64c
     assemblyName: Assembly-CSharp.dll
     namespaceName: RMSIDCUTILS.Network
     className: PrimeNetService
@@ -1155,7 +1157,7 @@ ScriptsOnlyBuild:
     className: NetworkAnimator
   - hash:
       serializedVersion: 2
-      Hash: b1f9ec2a0a18ba49aaf7de912b55fe4a
+      Hash: d59b46cfea5b1a8bed63af25cbe5e664
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: ButtonHandlers
@@ -1285,12 +1287,6 @@ ScriptsOnlyBuild:
     assemblyName: Assembly-CSharp.dll
     namespaceName: Mirror.Examples.Additive
     className: ShootingTankBehaviour
-  - hash:
-      serializedVersion: 2
-      Hash: dc26726dd05fd6dbb88f110af52a634f
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: TextUpdateScript
   - hash:
       serializedVersion: 2
       Hash: 14079b0afbb5e6763947dc924e87b1bd
@@ -1789,7 +1785,13 @@ ScriptsOnlyBuild:
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
     className: PlayableTrack
+  - hash:
+      serializedVersion: 2
+      Hash: 6ec941df61d2cb8cef85d819855cca96
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: UpdateCanvasElements
   platform: 19
   scenePathNames:
   - Assets/Scenes/SampleScene.unity
-  playerPath: C:/dev/Unityu/Builds/Client/Test123.exe
+  playerPath: C:/dev/Unityu/Builds/Client/PrimeNetTest.exe

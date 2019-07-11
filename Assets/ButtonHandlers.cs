@@ -6,27 +6,25 @@ using RMSIDCUTILS.Network;
 
 public class ButtonHandlers : MonoBehaviour
 {
-    public PrimeNetServer _NetworkManager;
     public PrimeNetService _NetworkService;
-
     public InputField _MyMessage;
 
     public void ToServer_OnClick()
     {
-        if (_NetworkManager != null)
+        Debug.Log("ToServer");
+
+        var message = new PrimeNetMessage
         {
-            Debug.Log("ToServer");
+            MessageBody = _MyMessage.text,
+            NetMessage = EPrimeNetMessage.Generic
+        };
 
-            var message = new PrimeNetMessage
-            {
-                MessageBody = _MyMessage.text,
-                NetMessage = EPrimeNetMessage.Generic
-            };
 
-            // _NetworkManager.Broadcast(message);
-            // _NetworkManager.SendToServer(_MyMessage.text);
-            _NetworkService.Broadcast(message);
+        if(_NetworkService == null )
+        {
+            Debug.Log("Net service is null");
         }
+        _NetworkService?.Broadcast(message);
     }
 
     public void ToClient_OnClick()
@@ -39,8 +37,6 @@ public class ButtonHandlers : MonoBehaviour
             NetMessage = EPrimeNetMessage.Generic
         };
 
-        _NetworkService.Broadcast(message);
-        // _NetworkManager.Broadcast(message);
-        // _NetworkManager.SendToClients(_MyMessage.text);
+        _NetworkService?.Broadcast(message);
     }
 }

@@ -10,7 +10,7 @@ using System.Xml.Serialization;
 
 namespace RMSIDCUTILS.Network
 {
-    public interface INetworkService
+    public interface INetworkServer
     { 
         void StartupClient();
         void StartupServer();
@@ -23,16 +23,8 @@ namespace RMSIDCUTILS.Network
         void OnClientDisconnected(PrimeNetClient client);
     }
 
-    public class PrimeNetServer : MonoBehaviour, INetworkService
+    public class PrimeNetServer : INetworkServer
     {
-        #region Editor Properties
-        [Header("Connection Properties")]
-        public bool _IsServer;
-        public int _Port;
-        public string _IpAddress;
-        public string _message;
-        #endregion
-
         #region Private Properties
         TcpListener _listener;
         ConnectionInfo _conn;
@@ -60,8 +52,6 @@ namespace RMSIDCUTILS.Network
         #region Message Handlers
         public event EventHandler<NetworkMessageEvent> NetworkMessageReceived;
         #endregion
-
-        public static PrimeNetServer instance;
 
         private void Awake()
         {
@@ -96,12 +86,9 @@ namespace RMSIDCUTILS.Network
         {
             // Security.PrefetchSocketPolicy(_ipAddress, _port);
             Debug.Log("Listen for connections ");
-            _message = "Listening for connections";
-            //IPAddress ipAddress = IPAddress.Parse(_ipAddress);
+
             _listener = new TcpListener(_conn.HosHostAddress, (int)_conn.Port);
             _listener.Start();
-
-            // _Text.text = "Asynchronously listening for connections";
 
             StatusMessage("Asynchronously listening for connections");
             _listener.BeginAcceptTcpClient(OnServerConnect, null); // async function
@@ -119,14 +106,28 @@ namespace RMSIDCUTILS.Network
             nc.DataReceived += OnDataReceived;
 
             Debug.Log("Listen for further connections");
+            StatusMessage("The server is listening for new connections");
+
+            var message = new PrimeNetMessage()
+            {
+                MessageBody = nc.ClientID.ToString(),
+                NetMessage = EPrimeNetMessage.ClientConnected
+            };
+
+            NetworkMessageEvent e = new NetworkMessageEvent(message);
+            HandleNetworkMessage(e);
+
             _listener.BeginAcceptTcpClient(OnServerConnect, null);
         }
 
         public void OnDataReceived(object sender, DataReceivedEvent e)
         {
             Debug.Log("Got a message from a network client ");
+            Debug.Log("what message ? " + e);
+            Debug.Log("what message ? " + e.Data);
+
             var netMsg = PrimeNetMessage.Deserialize(e.Data);
-            Debug.Log("message desrialized");
+            Debug.Log("message desrialized Body of message is {" + netMsg.MessageBody + "}");
             HandleNetworkMessage(new NetworkMessageEvent(netMsg));
         }
 
@@ -140,7 +141,7 @@ namespace RMSIDCUTILS.Network
 
         public void StartupClient()
         {
-            if (_IsServer)
+            if (_conn.IsServer)
             {
                 return;
             }
@@ -162,7 +163,7 @@ namespace RMSIDCUTILS.Network
             Debug.Log("Sending a message to the clients from the server ");
             
             StatusMessage("Sending a message back to the clients");
-            if (!_IsServer || string.IsNullOrEmpty(message))
+            if (!_conn.IsServer || string.IsNullOrEmpty(message))
                 return;
 
             var status =
@@ -178,7 +179,7 @@ namespace RMSIDCUTILS.Network
         public void SendToServer(string message)
         {
             Debug.Log("Sending message to server");
-            if (_IsServer)
+            if (_conn.IsServer)
                 return;
 
             // should only be one, unless disconnect code is not written properly
@@ -195,7 +196,6 @@ namespace RMSIDCUTILS.Network
 
         public void HandleNetworkMessage(NetworkMessageEvent e)
         {
-            Debug.Log("Is the handler null? " + NetworkMessageReceived);
             if (NetworkMessageReceived != null)
             {
                 NetworkMessageReceived?.Invoke(this, e);
@@ -246,11 +246,13 @@ namespace RMSIDCUTILS.Network
         public void Broadcast(PrimeNetMessage message)
         {
             Debug.Log("broadcasting message " + message.MessageBody);
+            StatusMessage("broadcasting message " + message.MessageBody);
 
-            foreach(var client in _clientList)
+            foreach (var client in _clientList)
             {
                 if (client.IsConnected())
                 {
+                    StatusMessage("Sending to a connected client");
                     client.Send(message.Serialize());
                 }
             }
@@ -285,6 +287,8 @@ namespace RMSIDCUTILS.Network
     {
         public EPrimeNetMessage NetMessage { get; set; }
         public string MessageBody { get; set; }
+        public string SenderIP { get; set; }
+        public string DestinationIP { get; set; }
 
         public string Serialize()
         {
@@ -295,7 +299,6 @@ namespace RMSIDCUTILS.Network
                 return stringwriter.ToString();
             }
         }
-
         public static PrimeNetMessage Deserialize(string message)
         {
             using (var stringReader = new System.IO.StringReader(message))

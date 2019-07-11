@@ -8,20 +8,20 @@ namespace RMSIDCUTILS.Network
 {
 	public interface IPrimeNetService  
 	{
-		// all clients
+		// all clients or server
 		void Broadcast(PrimeNetMessage m);
 		
 		// specific message to a specific client
 		void Send(Guid client, PrimeNetMessage message);
 		
 		// start the network interfaces
-		void StartServer();
+		void StartService();
 		
 		// shutdown the network interface
-		void StopServer();
+		void StopService();
 
 		// when the client sends a message, add it to the concurrent priority queue
-		void ProcessIncommingMessages();
+		void ProcessIncommingMessages(PrimeNetMessage message);
 		
 		// 
 		List<PrimeNetClient> GetClients();
@@ -42,6 +42,9 @@ namespace RMSIDCUTILS.Network
 		PrimeNetServer _networkServer=null;
 		ConnectionInfo _conn=null;
 		Queue<PrimeNetMessage> _messageQueue = new Queue<PrimeNetMessage>();
+
+        List<string> _clientList = new List<string>();
+
 		#endregion
 		
 		#region Public Properties
@@ -68,24 +71,42 @@ namespace RMSIDCUTILS.Network
         #endregion
 
         #region Public Interfaces
-        public void StartServer()
+        public void StartService()
 		{
-			if(IsRunning) return;
+            if (IsRunning)
+                return;
 
-            _conn = new ConnectionInfo(_IsManager, _Port, _HostNameOrIP );
-			_networkServer = new PrimeNetServer(_conn);
-			_networkServer.NetworkMessageReceived += HandleMessageReceived;
-            _networkServer.Startup();
-			IsRunning = true;
+            if (_networkServer == null)
+            {
+                _conn = new ConnectionInfo()
+                {
+                    HosHostAddress = IPAddress.Parse(_HostNameOrIP),
+                    IsServer = _IsManager,
+                    Port = _Port == 0 ? ConnectionInfo.DefaultPort : _Port,
+                    Protocol = 0
+                };
+
+                var message = string.Format("IP:{0}, Port:{1}, IsServer:{2}", _conn.HosHostAddress, _conn.Port, _conn.IsServer);
+                Debug.Log(message);
+                _Text.text = message;
+
+                _networkServer = new PrimeNetServer(_conn);
+                _networkServer.NetworkMessageReceived += HandleMessageReceived;
+                _networkServer.Startup();
+            }
+            IsRunning = true;
 		}
 		
 		public void Broadcast(PrimeNetMessage m)
 		{
-			if(!IsRunning) return;
+            Debug.Log("Broadcasting message.  Running state? " + IsRunning);
+            if (!IsRunning) return;
+
+            Debug.Log("Broadcasting message");
 			_networkServer.Broadcast(m);
 		}
 
-        public void StopServer()
+        public void StopService()
 		{
 			if(!IsRunning) return;
 			_networkServer.Shutdown();
@@ -98,44 +119,44 @@ namespace RMSIDCUTILS.Network
 		}
         #endregion
 
-        public void ProcessIncommingMessages()
+        public event EventHandler MessageAvailable;
+
+        public void ProcessIncommingMessages(PrimeNetMessage message)
         {
 
+            _messageQueue.Enqueue(message);
+
+            OnMessageAvailable(new EventArgs());
         }
 
 		public void HandleMessageReceived(object sender, NetworkMessageEvent e)
 		{
-			// _messageQueue.Enqueue(e.Data);
-            
+            // switch (e.Data.NetMessage}
+            Debug.Log("Should have gotten a new message from handler");
+            // _messageQueue.Enqueue(e.Data);
+            _Text.text = string.Format("Got message - {0}", e.Data.MessageBody);
+            ProcessIncommingMessages(e.Data);
 		}
+
+        protected virtual void OnMessageAvailable(EventArgs e)
+        {
+            // Make a temporary copy of the event to avoid possibility of
+            // a race condition if the last subscriber unsubscribes
+            // immediately after the null check and before the event is raised.
+            MessageAvailable?.Invoke(this, e);
+        }
 
         public List<PrimeNetClient> GetClients()
         {
-            throw new NotImplementedException("not implemented yet");
-        }
+            //_networkServer.
 
-        private void HandleNetworkMessage(object sender, NetworkMessageEvent e)
-        {
-            _Text.text = e.Data.MessageBody;
+            return null;
         }
-
         #region Unity
         private void Awake()
         {
-            if (_networkServer == null)
-            {
-                _conn = new ConnectionInfo()
-                {
-                    HosHostAddress = IPAddress.Parse(_HostNameOrIP),
-                    IsServer = _IsManager,
-                    Port = _Port == 0 ? ConnectionInfo.DefaultPort : _Port,
-                    Protocol = 0
-                };
-
-                _networkServer = new PrimeNetServer(_conn);
-                _networkServer.NetworkMessageReceived += HandleNetworkMessage;
-                _networkServer.Startup();
-            }
+            if( !IsRunning )
+                StartService();
         }
         #endregion
 

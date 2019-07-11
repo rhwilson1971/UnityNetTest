@@ -61,13 +61,12 @@ namespace RMSIDCUTILS.Network
 
         void OnRead(IAsyncResult ar)
         {
-            PrimeNetServer.instance._Text.text = "Received data from network";
             Debug.Log("Beginning to receive data");
             
             int length = Stream.EndRead(ar);
             if (length <= 0)
             {
-                OnDataReceived(new DataReceivedEvent(string.Format("id:{0}", ClientID.ToString())));
+                OnDataReceived(new DataReceivedEvent(""));
                 return;
             }
 
@@ -75,7 +74,6 @@ namespace RMSIDCUTILS.Network
             var receivedData = System.Text.Encoding.Default.GetString(buffer);
 
             Debug.Log("Recieved message " + receivedData);
-            PrimeNetServer.instance._Text.text = "Here's the message from network " + receivedData;
             OnDataReceived(new DataReceivedEvent(receivedData));
 
             // Clear current buffer and look for more data from the server
@@ -140,6 +138,7 @@ namespace RMSIDCUTILS.Network
                 stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
             }
 
+            Debug.Log("Actually sending message");
             //NetworkMan1.instance._Text.text = string.Format("Buffer length is {0}", data.Length);
             stream.Write(data, 0, data.Length);
             stream.Flush();
