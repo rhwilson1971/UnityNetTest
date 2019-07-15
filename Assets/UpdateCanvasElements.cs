@@ -32,6 +32,11 @@ public class UpdateCanvasElements : MonoBehaviour
             if (message != null)
             {
                 _DisplayText.text = message.MessageBody;
+
+                if(message.NetMessage == EPrimeNetMessage.ClientConnected)
+                {
+                    HandleConnectedClient(message);
+                }
             }
             else
             {
@@ -51,6 +56,11 @@ public class UpdateCanvasElements : MonoBehaviour
         Debug.Log("OnNewMessageAvailable Received ");
 
         haveMessage = true;
+    }
+
+    void HandleConnectedClient(PrimeNetMessage message)
+    {
+        _ConnectedClients.options.Add(new Dropdown.OptionData(message.MessageBody));
     }
 
 }

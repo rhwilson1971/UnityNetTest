@@ -63,7 +63,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\ButtonHandlers.cs" />
-    <Compile Include="Assets\DisplayNetworkUpdates.cs" />
     <Compile Include="Assets\Mirror\Components\NetworkAnimator.cs" />
     <Compile Include="Assets\Mirror\Components\NetworkLobbyManager.cs" />
     <Compile Include="Assets\Mirror\Components\NetworkLobbyPlayer.cs" />

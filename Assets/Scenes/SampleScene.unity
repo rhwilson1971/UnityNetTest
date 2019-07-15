@@ -531,7 +531,6 @@ GameObject:
   - component: {fileID: 211889551}
   - component: {fileID: 211889553}
   - component: {fileID: 211889552}
-  - component: {fileID: 211889554}
   m_Layer: 5
   m_Name: OtherText
   m_TagString: Untagged
@@ -600,20 +599,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 211889550}
   m_CullTransparentMesh: 0
---- !u!114 &211889554
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 211889550}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fda0a4713370709428502099fc1d8cff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _DisplayText: {fileID: 211889552}
-  _NetService: {fileID: 1167959968}
 --- !u!1 &238592332
 GameObject:
   m_ObjectHideFlags: 0
@@ -1288,21 +1273,7 @@ MonoBehaviour:
   m_ItemImage: {fileID: 0}
   m_Value: 0
   m_Options:
-    m_Options:
-    - m_Text: Client 1
-      m_Image: {fileID: 0}
-    - m_Text: Client 2
-      m_Image: {fileID: 0}
-    - m_Text: Client 3
-      m_Image: {fileID: 0}
-    - m_Text: Client 4
-      m_Image: {fileID: 0}
-    - m_Text: Client 5
-      m_Image: {fileID: 0}
-    - m_Text: Client 6
-      m_Image: {fileID: 0}
-    - m_Text: Client 7
-      m_Image: {fileID: 0}
+    m_Options: []
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -1941,7 +1912,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c4bf73b4b5c5d1440954ba531d22552c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _ConnectedClients: {fileID: 0}
+  _ConnectedClients: {fileID: 818326217}
   _DisplayText: {fileID: 211889552}
   _NetService: {fileID: 1167959968}
 --- !u!1 &1227358628
@@ -2220,7 +2191,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Client 1
+  m_Text: 
 --- !u!222 &1692943022
 CanvasRenderer:
   m_ObjectHideFlags: 0
