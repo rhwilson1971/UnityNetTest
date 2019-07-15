@@ -35,6 +35,8 @@ public class UpdateCanvasElements : MonoBehaviour
 
                 if(message.NetMessage == EPrimeNetMessage.ClientConnected)
                 {
+                    _DisplayText.text = "A client has connected";
+
                     HandleConnectedClient(message);
                 }
             }

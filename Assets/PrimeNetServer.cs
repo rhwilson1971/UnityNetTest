@@ -96,13 +96,14 @@ namespace RMSIDCUTILS.Network
 
         public void OnServerConnect(IAsyncResult ar)
         {
-            StatusMessage("A client is connecting");
+            // StatusMessage("A client is connecting");
 
             Debug.Log("Client connecting");
             TcpClient client = _listener.EndAcceptTcpClient(ar);
             PrimeNetClient nc = new PrimeNetClient(client);
             _clientList.Add(nc);
 
+            PrimeNetService.Instance._Text.text = "The client connected: " + nc.ClientID;
             nc.DataReceived += OnDataReceived;
 
             Debug.Log("Listen for further connections");
@@ -115,7 +116,7 @@ namespace RMSIDCUTILS.Network
             };
 
             NetworkMessageEvent e = new NetworkMessageEvent(message);
-            HandleNetworkMessage(e);
+            PublishNetworkMessage(e);
 
             _listener.BeginAcceptTcpClient(OnServerConnect, null);
         }
@@ -128,7 +129,7 @@ namespace RMSIDCUTILS.Network
 
             var netMsg = PrimeNetMessage.Deserialize(e.Data);
             Debug.Log("message desrialized Body of message is {" + netMsg.MessageBody + "}");
-            HandleNetworkMessage(new NetworkMessageEvent(netMsg));
+            PublishNetworkMessage(new NetworkMessageEvent(netMsg));
         }
 
         public void OnClientDisconnected(PrimeNetClient client)
@@ -194,7 +195,7 @@ namespace RMSIDCUTILS.Network
             }
         }
 
-        public void HandleNetworkMessage(NetworkMessageEvent e)
+        public void PublishNetworkMessage(NetworkMessageEvent e)
         {
             if (NetworkMessageReceived != null)
             {
@@ -262,7 +263,7 @@ namespace RMSIDCUTILS.Network
         {
             var message = new PrimeNetMessage() { NetMessage = EPrimeNetMessage.Status, MessageBody = statusText };
 
-            HandleNetworkMessage(new NetworkMessageEvent(message));
+            PublishNetworkMessage(new NetworkMessageEvent(message));
         }
     }
 

@@ -30,6 +30,7 @@ namespace RMSIDCUTILS.Network
         public PrimeNetClient()
         {
             ClientID = Guid.NewGuid();
+            Debug.Log("Creating a new GUID" + ClientID.ToString());
         }
 
         public PrimeNetClient(ConnectionInfo info) : base()
@@ -68,7 +69,7 @@ namespace RMSIDCUTILS.Network
             {
                 Debug.Log("Someone disconnected");
                 PrimeNetService.Instance._Text.text = "Someone disconnected";
-                OnDataReceived(new DataReceivedEvent(""));
+                PublishDataReceived(new DataReceivedEvent(""));
                 return;
             }
 
@@ -76,7 +77,7 @@ namespace RMSIDCUTILS.Network
             var receivedData = System.Text.Encoding.Default.GetString(buffer);
 
             Debug.Log("Recieved message " + receivedData);
-            OnDataReceived(new DataReceivedEvent(receivedData));
+            PublishDataReceived(new DataReceivedEvent(receivedData));
 
             // Clear current buffer and look for more data from the server
             Array.Clear(buffer, 0, buffer.Length);
@@ -104,7 +105,7 @@ namespace RMSIDCUTILS.Network
 
         // Wrap event invocations inside a protected virtual method
         // to allow derived classes to override the event invocation behavior
-        protected virtual void OnDataReceived(DataReceivedEvent e)
+        protected virtual void PublishDataReceived(DataReceivedEvent e)
         {
             // Make a temporary copy of the event to avoid possibility of
             // a race condition if the last subscriber unsubscribes

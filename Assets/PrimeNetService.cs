@@ -145,7 +145,7 @@ namespace RMSIDCUTILS.Network
         {
             Debug.Log("Enqueuing a new message");
             _mQueue.Enqueue(message);
-            OnMessageAvailable(new EventArgs());
+            OnMessageAvailable(new EventArgs()); // send a signal that there are new messages
         }
 
         public void HandleMessageReceived(object sender, NetworkMessageEvent e)
