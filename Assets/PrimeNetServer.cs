@@ -103,7 +103,7 @@ namespace RMSIDCUTILS.Network
             PrimeNetClient nc = new PrimeNetClient(client);
             _clientList.Add(nc);
 
-            PrimeNetService.Instance._Text.text = "The client connected: " + nc.ClientID;
+            //PrimeNetService.Instance._Text.text = "The client connected: " + nc.ClientID;
             nc.DataReceived += OnDataReceived;
 
             Debug.Log("Listen for further connections");

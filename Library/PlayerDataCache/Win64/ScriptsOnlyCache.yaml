@@ -1785,4 +1785,4 @@ ScriptsOnlyBuild:
   platform: 19
   scenePathNames:
   - Assets/Scenes/SampleScene.unity
-  playerPath: C:/dev/Unityu/Builds/Server/PrimeNetTest.exe
+  playerPath: C:/dev/Unityu/Builds/Client/PrimeNetTest.exe

@@ -68,7 +68,7 @@ namespace RMSIDCUTILS.Network
             if (length <= 0)
             {
                 Debug.Log("Someone disconnected");
-                PrimeNetService.Instance._Text.text = "Someone disconnected";
+                // PrimeNetService.Instance._Text.text = "Someone disconnected";
                 PublishDataReceived(new DataReceivedEvent(""));
                 return;
             }
