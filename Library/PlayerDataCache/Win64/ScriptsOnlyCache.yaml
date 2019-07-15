@@ -6,8 +6,6 @@ ScriptsOnlyBuild:
     - MoveCube
     - RMSIDCUTILS.Network.PrimeNetService
     - UpdateCanvasElements
-    UnityEditor.TestRunner.dll:
-    - UnityEditor.TestTools.TestRunner.TestListCacheData
     UnityEngine.UI.dll:
     - UnityEngine.EventSystems.EventSystem
     - UnityEngine.EventSystems.StandaloneInputModule
@@ -81,13 +79,13 @@ ScriptsOnlyBuild:
     - Class: 114
       Script: {instanceID: 9552}
     - Class: 114
-      Script: {instanceID: 10360}
+      Script: {instanceID: 9872}
     - Class: 114
-      Script: {instanceID: 10392}
+      Script: {instanceID: 10364}
     - Class: 114
-      Script: {instanceID: 10452}
+      Script: {instanceID: 10396}
     - Class: 114
-      Script: {instanceID: 15738}
+      Script: {instanceID: 10456}
     - Class: 115
       Script: {instanceID: 0}
     - Class: 128
@@ -383,6 +381,18 @@ ScriptsOnlyBuild:
     className: TMP_InputField
   - hash:
       serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: UnityEngine.Advertisements.dll
+    namespaceName: UnityEngine.Advertisements
+    className: CallbackExecutor
+  - hash:
+      serializedVersion: 2
+      Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
+    assemblyName: UnityEngine.Advertisements.dll
+    namespaceName: UnityEngine.Advertisements.Editor
+    className: Placeholder
+  - hash:
+      serializedVersion: 2
       Hash: cf9f5cf2c3145a37ac07f00e50e460f9
     assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
@@ -621,6 +631,12 @@ ScriptsOnlyBuild:
     assemblyName: Mirror.dll
     namespaceName: Mirror
     className: MultiplexTransport
+  - hash:
+      serializedVersion: 2
+      Hash: 6ec941df61d2cb8cef85d819855cca96
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: UpdateCanvasElements
   - hash:
       serializedVersion: 2
       Hash: 303ad70ce203ad874efe2965d0fbcff9
@@ -1785,12 +1801,6 @@ ScriptsOnlyBuild:
     assemblyName: Unity.Timeline.dll
     namespaceName: UnityEngine.Timeline
     className: PlayableTrack
-  - hash:
-      serializedVersion: 2
-      Hash: 6ec941df61d2cb8cef85d819855cca96
-    assemblyName: Assembly-CSharp.dll
-    namespaceName: 
-    className: UpdateCanvasElements
   platform: 19
   scenePathNames:
   - Assets/Scenes/SampleScene.unity

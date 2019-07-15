@@ -1289,11 +1289,19 @@ MonoBehaviour:
   m_Value: 0
   m_Options:
     m_Options:
-    - m_Text: Option A
+    - m_Text: Client 1
       m_Image: {fileID: 0}
-    - m_Text: Option B
+    - m_Text: Client 2
       m_Image: {fileID: 0}
-    - m_Text: Option C
+    - m_Text: Client 3
+      m_Image: {fileID: 0}
+    - m_Text: Client 4
+      m_Image: {fileID: 0}
+    - m_Text: Client 5
+      m_Image: {fileID: 0}
+    - m_Text: Client 6
+      m_Image: {fileID: 0}
+    - m_Text: Client 7
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1934,7 +1942,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _ConnectedClients: {fileID: 0}
-  _DisplayText: {fileID: 1876789572}
+  _DisplayText: {fileID: 211889552}
   _NetService: {fileID: 1167959968}
 --- !u!1 &1227358628
 GameObject:
@@ -2212,7 +2220,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Option A
+  m_Text: Client 1
 --- !u!222 &1692943022
 CanvasRenderer:
   m_ObjectHideFlags: 0

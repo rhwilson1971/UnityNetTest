@@ -66,6 +66,8 @@ namespace RMSIDCUTILS.Network
             int length = Stream.EndRead(ar);
             if (length <= 0)
             {
+                Debug.Log("Someone disconnected");
+                PrimeNetService.Instance._Text.text = "Someone disconnected";
                 OnDataReceived(new DataReceivedEvent(""));
                 return;
             }

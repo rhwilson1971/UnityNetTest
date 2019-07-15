@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Net;
 using UnityEngine;
@@ -6,54 +7,60 @@ using UnityEngine.UI;
 
 namespace RMSIDCUTILS.Network
 {
-	public interface IPrimeNetService  
-	{
-		// all clients or server
-		void Broadcast(PrimeNetMessage m);
-		
-		// specific message to a specific client
-		void Send(Guid client, PrimeNetMessage message);
-		
-		// start the network interfaces
-		void StartService();
-		
-		// shutdown the network interface
-		void StopService();
+    public interface IPrimeNetService
+    {
+        // all clients or server
+        void Broadcast(PrimeNetMessage m);
 
-		// when the client sends a message, add it to the concurrent priority queue
-		void ProcessIncommingMessages(PrimeNetMessage message);
-		
-		// 
-		List<PrimeNetClient> GetClients();
-	}
+        // specific message to a specific client
+        void Send(Guid client, PrimeNetMessage message);
 
-	public class PrimeNetService : MonoBehaviour, IPrimeNetService
-	{
-		#region Unity Editor Interface
-		[Header("Connection Propertties")]
-		public bool _IsManager;
-		public string _HostNameOrIP;
-		public uint _Port;
+        // start the network interfaces
+        void StartService();
+
+        // shutdown the network interface
+        void StopService();
+
+        // when the client sends a message, add it to the concurrent priority queue
+        void ProcessIncommingMessages(PrimeNetMessage message);
+
+        // 
+        List<PrimeNetClient> GetClients();
+
+        PrimeNetMessage Dequeue();
+
+        PrimeNetMessage Peek();
+    }
+
+    public class PrimeNetService : MonoBehaviour, IPrimeNetService
+    {
+        #region Unity Editor Interface
+        [Header("Connection Propertties")]
+        public bool _IsManager;
+        public string _HostNameOrIP;
+        public uint _Port;
         public Text _Text;
         #endregion
 
         #region Private Properties
-        static PrimeNetService _instance = null;
-		PrimeNetServer _networkServer=null;
-		ConnectionInfo _conn=null;
-		Queue<PrimeNetMessage> _messageQueue = new Queue<PrimeNetMessage>();
+        private static PrimeNetService _instance = null;
+        private PrimeNetServer _networkServer = null;
+        private ConnectionInfo _conn = null;
 
-        List<string> _clientList = new List<string>();
+        // Queue<PrimeNetMessage> _messageQueue = new Queue<PrimeNetMessage>();
 
-		#endregion
-		
-		#region Public Properties
-		public bool IsRunning;
+        private ConcurrentQueue<PrimeNetMessage> _mQueue = new ConcurrentQueue<PrimeNetMessage>();
+        private List<string> _clientList = new List<string>();
+
+        #endregion
+
+        #region Public Properties
+        public bool IsRunning;
         public static PrimeNetService Instance
         {
             get
             {
-                if( _instance == null )
+                if (_instance == null)
                 {
                     _instance = new PrimeNetService();
                 }
@@ -61,20 +68,22 @@ namespace RMSIDCUTILS.Network
                 return _instance;
             }
         }
-		#endregion
-		
-		#region Constructors
-		public PrimeNetService()
-		{
-			IsRunning=false;
-		}
+        #endregion
+
+        #region Constructors
+        public PrimeNetService()
+        {
+            IsRunning = false;
+        }
         #endregion
 
         #region Public Interfaces
         public void StartService()
-		{
+        {
             if (IsRunning)
+            {
                 return;
+            }
 
             if (_networkServer == null)
             {
@@ -95,46 +104,58 @@ namespace RMSIDCUTILS.Network
                 _networkServer.Startup();
             }
             IsRunning = true;
-		}
-		
-		public void Broadcast(PrimeNetMessage m)
-		{
+        }
+
+        public void Broadcast(PrimeNetMessage m)
+        {
             Debug.Log("Broadcasting message.  Running state? " + IsRunning);
-            if (!IsRunning) return;
+            if (!IsRunning)
+            {
+                return;
+            }
 
             Debug.Log("Broadcasting message");
-			_networkServer.Broadcast(m);
-		}
+            _networkServer.Broadcast(m);
+        }
 
         public void StopService()
-		{
-			if(!IsRunning) return;
-			_networkServer.Shutdown();
-		}
+        {
+            if (!IsRunning)
+            {
+                return;
+            }
+
+            _networkServer.Shutdown();
+        }
 
         public void Send(Guid id, PrimeNetMessage message)
-		{
-			if(!IsRunning) return;
-			_networkServer.Send(id, message);
-		}
+        {
+            if (!IsRunning)
+            {
+                return;
+            }
+
+            _networkServer.Send(id, message);
+        }
         #endregion
 
         public event EventHandler MessageAvailable;
 
         public void ProcessIncommingMessages(PrimeNetMessage message)
         {
-            _messageQueue.Enqueue(message);
+            Debug.Log("Enqueuing a new message");
+            _mQueue.Enqueue(message);
             OnMessageAvailable(new EventArgs());
         }
 
-		public void HandleMessageReceived(object sender, NetworkMessageEvent e)
-		{
+        public void HandleMessageReceived(object sender, NetworkMessageEvent e)
+        {
             // switch (e.Data.NetMessage}
             Debug.Log("Should have gotten a new message from handler");
             // _messageQueue.Enqueue(e.Data);
             _Text.text = string.Format("Got message - {0}", e.Data.MessageBody);
             ProcessIncommingMessages(e.Data);
-		}
+        }
 
         protected virtual void OnMessageAvailable(EventArgs e)
         {
@@ -150,11 +171,45 @@ namespace RMSIDCUTILS.Network
 
             return null;
         }
+
+        public PrimeNetMessage Dequeue()
+        {
+            PrimeNetMessage result = null;
+
+            if (!_mQueue.IsEmpty)
+            {
+                if (_mQueue.TryDequeue(out result))
+                {
+                    Debug.Log("Concurrrent Dequeue succeeded - " + result.MessageBody);
+                }
+                else
+                {
+                    Debug.Log("Concurrrent Dequeue failed");
+                }
+            }
+
+            return result;
+        }
+
+        public PrimeNetMessage Peek()
+        {
+            PrimeNetMessage nextMessage = null;
+
+            //if(_messageQueue.Count > 0)
+            //{
+            //    nextMessage = _messageQueue.Peek();
+            //}
+
+            return nextMessage;
+        }
+
         #region Unity
         private void Awake()
         {
-            if( !IsRunning )
+            if (!IsRunning)
+            {
                 StartService();
+            }
         }
         #endregion
 
