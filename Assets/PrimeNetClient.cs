@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace RMSIDCUTILS.Network
@@ -11,17 +14,27 @@ namespace RMSIDCUTILS.Network
         #region Local Properties
         private bool _isLocal = false;
         readonly TcpClient _client;
+        readonly Socket _socket;
         readonly byte[] buffer = new byte[5000];
         readonly ConnectionInfo _connectInfo;
+        private EndPoint _endPoint;
 
         NetworkStream Stream
         {
             get { return _client.GetStream(); }
         }
+
+        NetworkStream _stream;
+
+        ManualResetEvent _connectionPollEvent = new ManualResetEvent(false);
         #endregion
 
         #region Public Properties
         public Guid ClientID { get; set; }
+        public int ClientNumber { get; set; }
+        public TcpClient GetClient() { return _client;  }
+        public Socket GetSocket() { return _socket;  }
+        public EndPoint RemoteEndPoint;
         #endregion
 
         #region Constructors
@@ -47,9 +60,24 @@ namespace RMSIDCUTILS.Network
             {
                 _isLocal = true;
                 _client.NoDelay = true;
-                // NetworkManager.instance._Text.text = "S: Client connected to this server";
                 Stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
-                // NetworkManager.instance._Text.text = "S: Read ended";
+            }
+        }
+
+        public PrimeNetClient(Socket socket, bool isConnected = true) : base()
+        {
+            Debug.Log("Initializing network socket");
+
+            _socket = socket;
+            
+            if (isConnected)
+            {
+                Debug.Log("In is netclient connected");
+                _isLocal = true;
+                _socket.NoDelay = true;
+                _stream = new NetworkStream(_socket);
+                _stream.BeginRead(buffer, 0, buffer.Length, OnSocketRead, null);
+                Debug.Log("In here?");
             }
         }
         #endregion
@@ -60,16 +88,56 @@ namespace RMSIDCUTILS.Network
             _client.Close();
         }
 
-        void OnRead(IAsyncResult ar)
+        void OnSocketRead(IAsyncResult ar)
         {
             Debug.Log("Beginning to receive data");
-            
+            int length = _stream.EndRead(ar);
+            if (length <= 0)
+            {
+                Debug.Log("Someone disconnected");
+
+                PrimeNetMessage
+                     message = new PrimeNetMessage
+                     {
+                         MessageBody = "Disconnected from remote end",
+                         NetMessage = _connectInfo.IsServer ? EPrimeNetMessage.ClientConnected : EPrimeNetMessage.ServerDisconnected,
+                         SenderIP = _connectInfo.HosHostAddress.ToString()
+                     };
+
+                PublishDataReceived(new DataReceivedEvent(message.Serialize()));
+                return;
+            }
+
+            string newMessage = System.Text.Encoding.UTF8.GetString(buffer, 0, length);
+            var receivedData = System.Text.Encoding.Default.GetString(buffer);
+
+            Debug.Log("Recieved message " + receivedData);
+            PublishDataReceived(new DataReceivedEvent(receivedData));
+
+            // Clear current buffer and look for more data from the server
+            Array.Clear(buffer, 0, buffer.Length);
+            _stream.BeginRead(buffer, 0, buffer.Length, OnSocketRead, null);
+        }
+
+        void OnRead(IAsyncResult ar)
+        {
+            _connectionPollEvent.Reset();
+
+            Debug.Log("Beginning to receive data");
             int length = Stream.EndRead(ar);
             if (length <= 0)
             {
                 Debug.Log("Someone disconnected");
-                // PrimeNetService.Instance._Text.text = "Someone disconnected";
-                PublishDataReceived(new DataReceivedEvent(""));
+
+                PrimeNetMessage
+                     message = new PrimeNetMessage
+                     {
+                         MessageBody = "Disconnected from remote end",
+                         NetMessage = _connectInfo.IsServer ? EPrimeNetMessage.ClientConnected : EPrimeNetMessage.ServerDisconnected,
+                         SenderIP = _connectInfo.HosHostAddress.ToString()
+                     };
+
+                PublishDataReceived(new DataReceivedEvent(message.Serialize()));
                 return;
             }
 
@@ -83,6 +151,8 @@ namespace RMSIDCUTILS.Network
             Array.Clear(buffer, 0, buffer.Length);
             Stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
         }
+
+
 
         /// <summary>
         // This Async method is called when the client actually connects
@@ -103,6 +173,21 @@ namespace RMSIDCUTILS.Network
             Stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
         }
 
+        public void Read()
+        {
+            Stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
+        }
+
+        public void SocketRead()
+        {
+            Debug.Log("Socket read setup ");
+            if(_stream == null )
+            {
+                _stream = new NetworkStream(_socket);
+            }
+            _stream.BeginRead(buffer, 0, buffer.Length, OnSocketRead, null);
+        }
+
         // Wrap event invocations inside a protected virtual method
         // to allow derived classes to override the event invocation behavior
         protected virtual void PublishDataReceived(DataReceivedEvent e)
@@ -116,6 +201,31 @@ namespace RMSIDCUTILS.Network
         #endregion
 
         #region Public Interface
+
+        public void SocketSend(string message)
+        {
+            Debug.Log("Send message from client to server ");
+            byte[] data = System.Text.Encoding.UTF8.GetBytes(message);
+
+            if (_socket == null)
+            {
+                return;
+            }
+
+            Debug.Log("Is this local? " + _isLocal);
+
+            // setup async reading before sending the message, since connection blocks
+            if (_isLocal == false) // this is a remote client connecting to a TCP Server 
+            {
+                Debug.Log("Re-registering?");
+                _stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
+            }
+
+            Debug.Log("Actually sending message");
+            _stream.Write(data, 0, data.Length);
+            _stream.Flush();
+        }
+
         public void Send(string message)
         {
             Debug.Log("Send message from client to server ");
@@ -150,6 +260,44 @@ namespace RMSIDCUTILS.Network
         public bool IsConnected()
         {
             return _client != null ? _client.Connected : false;
+        }
+
+        public bool IsSocketConnected()
+        {
+            bool isConnected = false;
+
+            // .Connect throws an exception if unsuccessful
+            //_socket.Connect(RemoteEndPoint);
+
+            // This is how you can determine whether a socket is still connected.
+            bool blockingState = _socket.Blocking;
+            try
+            {
+                byte[] tmp = new byte[1];
+
+                _socket.Blocking = false;
+                _socket.Send(tmp, 0, 0);
+                isConnected = true;
+                Debug.Log("The socket should be connected");
+            }
+            catch (SocketException e)
+            {
+                // 10035 == WSAEWOULDBLOCK
+                if (e.NativeErrorCode.Equals(10035))
+                {
+                    Debug.Log("Still Connected, but the Send would block");
+                }
+                else
+                {
+                    Debug.Log(string.Format("Disconnected: error code {0}!" , e.NativeErrorCode));
+                }
+            }
+            finally
+            {
+                _socket.Blocking = blockingState;
+            }
+
+            return isConnected;
         }
         #endregion
     }

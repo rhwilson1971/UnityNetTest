@@ -115,7 +115,7 @@ namespace RMSIDCUTILS.Network
             }
 
             Debug.Log("Broadcasting message");
-            _networkServer.Broadcast(m);
+            _networkServer.Broadcast2(m);
         }
 
         public void StopService()

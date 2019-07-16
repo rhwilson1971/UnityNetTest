@@ -7,6 +7,7 @@ using System.Threading;
 using System;
 using UnityEngine.UI;
 using System.Xml.Serialization;
+using System.Threading.Tasks;
 
 namespace RMSIDCUTILS.Network
 {
@@ -29,6 +30,8 @@ namespace RMSIDCUTILS.Network
         TcpListener _listener;
         ConnectionInfo _conn;
         List<PrimeNetClient> _clientList = new List<PrimeNetClient>();
+        bool _isConnecting = true;
+        ManualResetEvent _quitAppEvent = new ManualResetEvent(false);
         #endregion
 
         #region Constructors
@@ -73,7 +76,7 @@ namespace RMSIDCUTILS.Network
             }
             else
             {
-                StartupClient();
+                StartSocketClient();
             }
         }
 
@@ -91,16 +94,50 @@ namespace RMSIDCUTILS.Network
             _listener.Start();
 
             StatusMessage("Asynchronously listening for connections");
-            _listener.BeginAcceptTcpClient(OnServerConnect, null); // async function
+            // _listener.BeginAcceptTcpClient(OnServerConnect, null); // async function
+            _listener.BeginAcceptSocket(OnServerSocketConnect, null);
+        }
+
+        public void OnServerSocketConnect(IAsyncResult ar)
+        {
+            Debug.Log("Client connecting");
+
+            Socket socket = _listener.EndAcceptSocket(ar);
+
+            PrimeNetClient nc = new PrimeNetClient(socket)
+            {
+                ClientNumber = _clientList.Count + 1,
+                RemoteEndPoint = new IPEndPoint(_conn.HosHostAddress.Address, (int)_conn.Port)
+            };
+
+            _clientList.Add(nc);
+
+            nc.DataReceived += OnDataReceived;
+
+            Debug.Log("Listen for further connections");
+            StatusMessage("The server is listening for new connections");
+
+            var message = new PrimeNetMessage()
+            {
+                MessageBody = nc.ClientNumber.ToString(),
+                NetMessage = EPrimeNetMessage.ClientConnected
+            };
+
+            NetworkMessageEvent e = new NetworkMessageEvent(message);
+            PublishNetworkMessage(e);
+
+            _listener.BeginAcceptSocket(OnServerSocketConnect, null);
         }
 
         public void OnServerConnect(IAsyncResult ar)
         {
-            // StatusMessage("A client is connecting");
-
             Debug.Log("Client connecting");
+
             TcpClient client = _listener.EndAcceptTcpClient(ar);
-            PrimeNetClient nc = new PrimeNetClient(client);
+            PrimeNetClient nc = new PrimeNetClient(client)
+            {
+                ClientNumber = _clientList.Count + 1
+            };
             _clientList.Add(nc);
 
             //PrimeNetService.Instance._Text.text = "The client connected: " + nc.ClientID;
@@ -111,7 +148,7 @@ namespace RMSIDCUTILS.Network
 
             var message = new PrimeNetMessage()
             {
-                MessageBody = nc.ClientID.ToString(),
+                MessageBody = nc.ClientNumber.ToString(),
                 NetMessage = EPrimeNetMessage.ClientConnected
             };
 
@@ -151,12 +188,47 @@ namespace RMSIDCUTILS.Network
             Debug.Log("Startup client");
 
             TcpClient client = new TcpClient();
-
             PrimeNetClient connectedClient = new PrimeNetClient(client, false);
-            connectedClient.DataReceived += OnDataReceived;
 
+            connectedClient.DataReceived += OnDataReceived;
             _clientList.Add(connectedClient);
-            client.BeginConnect(_conn.HosHostAddress, (int)_conn.Port, (ar) => connectedClient.EndConnect(ar), null);
+
+            BeginServerConnection(connectedClient);
+        }
+
+        public void StartSocketClient()
+        {
+            if (_conn.IsServer)
+            {
+                return;
+            }
+
+            StatusMessage("Starting up the network client");
+            Debug.Log("Startup client");
+
+            // TcpClient client = new TcpClient();
+            // PrimeNetClient connectedClient = new PrimeNetClient(client, false);
+
+            //connectedClient.DataReceived += OnDataReceived;
+            //_clientList.Add(connectedClient);
+
+            // BeginServerConnection(connectedClient);
+
+            
+            
+            IPEndPoint localEndPoint = new IPEndPoint(_conn.HosHostAddress.Address, (int)_conn.Port);
+            Socket sender = new Socket(_conn.HosHostAddress.AddressFamily,
+                               SocketType.Stream, ProtocolType.Tcp);
+
+            PrimeNetClient client = new PrimeNetClient(sender, false)
+            {
+                RemoteEndPoint = localEndPoint
+            };
+
+            client.DataReceived += OnDataReceived;
+            _clientList.Add(client);
+
+            BeginServerConnection(client, localEndPoint);
         }
 
         public void SendToClients(string message)
@@ -253,8 +325,25 @@ namespace RMSIDCUTILS.Network
             {
                 if (client.IsConnected())
                 {
+                    message.SenderIP = _conn.HosHostAddress.ToString();
                     StatusMessage("Sending to a connected client");
                     client.Send(message.Serialize());
+                }
+            }
+        }
+
+        public void Broadcast2(PrimeNetMessage message)
+        {
+            Debug.Log("broadcasting message " + message.MessageBody);
+            StatusMessage("broadcasting message " + message.MessageBody);
+
+            foreach (var client in _clientList)
+            {
+                if (client.IsSocketConnected())
+                {
+                    message.SenderIP = _conn.HosHostAddress.ToString();
+                    StatusMessage("Sending to a connected client");
+                    client.SocketSend(message.Serialize());
                 }
             }
         }
@@ -264,6 +353,114 @@ namespace RMSIDCUTILS.Network
             var message = new PrimeNetMessage() { NetMessage = EPrimeNetMessage.Status, MessageBody = statusText };
 
             PublishNetworkMessage(new NetworkMessageEvent(message));
+        }
+
+        void ConnectToServer(PrimeNetClient client)
+        {
+            _isConnecting = true;
+            ManualResetEvent tryConnect = new ManualResetEvent(false); // this is a wait timer essentially
+            while (_isConnecting)
+            {
+                try
+                {
+                    client.GetClient().Connect(_conn.HosHostAddress, (int)_conn.Port);
+                    client.Read();
+                    _isConnecting = false;
+                    // _connectFinished.Reset();
+                }
+                catch(ObjectDisposedException ex)
+                {
+                    Debug.Log(ex.Message);
+                }
+                catch(SocketException ex)
+                {
+                    Debug.Log(ex.Message);
+                }
+
+                if(_isConnecting == true )
+                {
+                    tryConnect.WaitOne(1000); // wait for 1 second
+                }
+            }
+        }
+
+        void ConnectToServer(PrimeNetClient client, IPEndPoint endPoint)
+        {
+            Debug.Log("Connecting to the server...");
+            _isConnecting = true;
+            // ManualResetEvent tryConnect = new ManualResetEvent(false); // this is a wait timer essentially
+            _quitAppEvent.Reset();
+
+            while (_isConnecting)
+            {
+                try
+                {
+                    client.GetSocket().Connect(endPoint);
+                    client.SocketRead();
+                    _isConnecting = false;
+                }
+                catch (ObjectDisposedException ex)
+                {
+                    Debug.Log(ex.Message);
+                }
+                catch (SocketException ex)
+                {
+                    Debug.Log(ex.Message);
+                }
+
+                if (_isConnecting == true)
+                {
+                    // this signal is from the outside, if the application is told to 
+                    // quit, stop this task.  If th task expires, and not connection is there, keep trying to connect
+                    // when connected, set _isConnecting to false, which also stops this task
+                    var isSignaled = _quitAppEvent.WaitOne(1000);
+
+                    if(isSignaled)
+                    {
+                        _isConnecting = false;
+                    }
+                }
+            }
+        }
+
+        void StopConnection()
+        {
+            if (_isConnecting)
+            {
+                _quitAppEvent.Set();
+            }
+        }
+
+        //void ConnectionCompleted(IAsyncResult ar)
+        //{
+        //    Debug.Log("Client Connected");
+
+        //    var client = (PrimeNetClient)ar.AsyncState;
+        //    client.EndConnect(ar); // this will block until the TCP connection is completed
+
+
+        //    // Once connection completes, this will setup this TCP connection to wait for data 
+        //    // on it's network stream, when data is received, the OnRead method will be called
+        //    // this is a non-blocking call, so this method will end once BeginRead starts
+        //    Debug.Log("Client connect ended");
+        //    client.Read();
+
+        //    _connectFinished.Set();
+        //}
+
+        void BeginServerConnection(PrimeNetClient client, IPEndPoint endPoint=null)
+        {
+            // create a connection thread that tries to connect every 1.5 seconds untill the server becomes available
+            if (null == endPoint)
+            {
+                Task t = new Task(() => ConnectToServer(client));
+                t.Start();
+            }
+            else
+            {
+                Task t = new Task(() => ConnectToServer(client, endPoint));
+                t.Start();
+            }
         }
     }
 
