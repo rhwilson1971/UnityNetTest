@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -11,29 +9,34 @@ namespace RMSIDCUTILS.Network
 {
     public class PrimeNetClient
     {
+        private const int ONE_SECOND = 1000;
+
         #region Local Properties
+
+        private ManualResetEvent _heartbeatEvent = new ManualResetEvent(false);
+
+
         private bool _isLocal = false;
-        readonly TcpClient _client;
-        readonly Socket _socket;
-        readonly byte[] buffer = new byte[5000];
-        readonly ConnectionInfo _connectInfo;
+        private readonly TcpClient _client;
+        private readonly Socket _socket;
+        private readonly byte[] buffer = new byte[5000];
+        private readonly ConnectionInfo _connectInfo;
         private EndPoint _endPoint;
 
-        NetworkStream Stream
+        private NetworkStream Stream
         {
             get { return _client.GetStream(); }
         }
 
-        NetworkStream _stream;
-
-        ManualResetEvent _connectionPollEvent = new ManualResetEvent(false);
+        private NetworkStream _stream;
+        private ManualResetEvent _connectionPollEvent = new ManualResetEvent(false);
         #endregion
 
         #region Public Properties
         public Guid ClientID { get; set; }
         public int ClientNumber { get; set; }
-        public TcpClient GetClient() { return _client;  }
-        public Socket GetSocket() { return _socket;  }
+        public TcpClient GetClient() { return _client; }
+        public Socket GetSocket() { return _socket; }
         public EndPoint RemoteEndPoint;
         #endregion
 
@@ -69,7 +72,7 @@ namespace RMSIDCUTILS.Network
             Debug.Log("Initializing network socket");
 
             _socket = socket;
-            
+
             if (isConnected)
             {
                 Debug.Log("In is netclient connected");
@@ -88,8 +91,10 @@ namespace RMSIDCUTILS.Network
             _client.Close();
         }
 
-        void OnSocketRead(IAsyncResult ar)
+        private void OnSocketRead(IAsyncResult ar)
         {
+            _heartbeatEvent.Set();
+
             Debug.Log("Beginning to receive data");
             int length = _stream.EndRead(ar);
             if (length <= 0)
@@ -119,7 +124,7 @@ namespace RMSIDCUTILS.Network
             _stream.BeginRead(buffer, 0, buffer.Length, OnSocketRead, null);
         }
 
-        void OnRead(IAsyncResult ar)
+        private void OnRead(IAsyncResult ar)
         {
             _connectionPollEvent.Reset();
 
@@ -181,7 +186,7 @@ namespace RMSIDCUTILS.Network
         public void SocketRead()
         {
             Debug.Log("Socket read setup ");
-            if(_stream == null )
+            if (_stream == null)
             {
                 _stream = new NetworkStream(_socket);
             }
@@ -201,7 +206,6 @@ namespace RMSIDCUTILS.Network
         #endregion
 
         #region Public Interface
-
         public void SocketSend(string message)
         {
             Debug.Log("Send message from client to server ");
@@ -289,7 +293,7 @@ namespace RMSIDCUTILS.Network
                 }
                 else
                 {
-                    Debug.Log(string.Format("Disconnected: error code {0}!" , e.NativeErrorCode));
+                    Debug.Log(string.Format("Disconnected: error code {0}!", e.NativeErrorCode));
                 }
             }
             finally
@@ -298,6 +302,37 @@ namespace RMSIDCUTILS.Network
             }
 
             return isConnected;
+        }
+
+        private void SendHeartbeat()
+        {
+            Task task = new Task(() =>
+           {
+               bool signaled = _heartbeatEvent.WaitOne(ONE_SECOND);
+
+               if (signaled == false)
+               {
+                   if (!IsSocketConnected())
+                   {
+                       SendDisconnectMessage();
+                   }
+               }
+           });
+
+            task.Start();
+        }
+
+        private void SendDisconnectMessage()
+        {
+            PrimeNetMessage
+                 message = new PrimeNetMessage
+                 {
+                     MessageBody = "Disconnected from remote end",
+                     NetMessage = _connectInfo.IsServer ? EPrimeNetMessage.ClientConnected : EPrimeNetMessage.ServerDisconnected,
+                     SenderIP = _connectInfo.HosHostAddress.ToString()
+                 };
+
+            PublishDataReceived(new DataReceivedEvent(message.Serialize()));
         }
         #endregion
     }

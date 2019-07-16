@@ -100,7 +100,7 @@ namespace RMSIDCUTILS.Network
 
         public void OnServerSocketConnect(IAsyncResult ar)
         {
-            Debug.Log("Client connecting");
+            Debug.Log("Client connecting to this server");
 
             Socket socket = _listener.EndAcceptSocket(ar);
 
@@ -388,7 +388,6 @@ namespace RMSIDCUTILS.Network
         {
             Debug.Log("Connecting to the server...");
             _isConnecting = true;
-            // ManualResetEvent tryConnect = new ManualResetEvent(false); // this is a wait timer essentially
             _quitAppEvent.Reset();
 
             while (_isConnecting)
@@ -451,16 +450,8 @@ namespace RMSIDCUTILS.Network
         void BeginServerConnection(PrimeNetClient client, IPEndPoint endPoint=null)
         {
             // create a connection thread that tries to connect every 1.5 seconds untill the server becomes available
-            if (null == endPoint)
-            {
-                Task t = new Task(() => ConnectToServer(client));
-                t.Start();
-            }
-            else
-            {
-                Task t = new Task(() => ConnectToServer(client, endPoint));
-                t.Start();
-            }
+            Task t = endPoint == null ? new Task(() => ConnectToServer(client)) : new Task(() => ConnectToServer(client, endPoint));
+            t.Start();
         }
     }
 
