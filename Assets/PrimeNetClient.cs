@@ -16,8 +16,6 @@ namespace RMSIDCUTILS.Network
 
     public class PrimeNetClient : IPrimeNetClient
     {
-        private const int ONE_SECOND = 1000;
-
         private PrimeNetHeartbeatTimer _hbTimer;
 
         #region Local Properties
@@ -58,12 +56,12 @@ namespace RMSIDCUTILS.Network
             Debug.Log("Creating a new GUID" + ClientID.ToString());
         }
 
-        public PrimeNetClient(ConnectionInfo info) : base()
+        public PrimeNetClient(ConnectionInfo info) : this()
         {
             _connectInfo = info ?? throw new ArgumentNullException("info", "The info object should contain a reference to a ConnectionInfo instance");
         }
 
-        public PrimeNetClient(TcpClient client, bool isConnected = true) : base()
+        public PrimeNetClient(TcpClient client, bool isConnected = true) : this()
         {
             Debug.Log("Initializing network client");
 
@@ -76,7 +74,7 @@ namespace RMSIDCUTILS.Network
             }
         }
 
-        public PrimeNetClient(Socket socket, bool isConnected = true) : base()
+        public PrimeNetClient(Socket socket, bool isConnected = true) : this()
         {
             Debug.Log("Initializing network socket");
 
@@ -322,7 +320,10 @@ namespace RMSIDCUTILS.Network
 
         public void Disconnect()
         {
-            _hbTimer.Stop();
+            if (_hbTimer != null)
+            {
+                _hbTimer.Stop();
+            }
 
             PrimeNetMessage message = new PrimeNetMessage
             {
