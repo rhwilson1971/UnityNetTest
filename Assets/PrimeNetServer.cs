@@ -205,20 +205,9 @@ namespace RMSIDCUTILS.Network
 
             StatusMessage("Starting up the network client");
             Debug.Log("Startup client");
-
-            // TcpClient client = new TcpClient();
-            // PrimeNetClient connectedClient = new PrimeNetClient(client, false);
-
-            //connectedClient.DataReceived += OnDataReceived;
-            //_clientList.Add(connectedClient);
-
-            // BeginServerConnection(connectedClient);
-
-            
             
             IPEndPoint localEndPoint = new IPEndPoint(_conn.HosHostAddress.Address, (int)_conn.Port);
-            Socket sender = new Socket(_conn.HosHostAddress.AddressFamily,
-                               SocketType.Stream, ProtocolType.Tcp);
+            Socket sender = new Socket(_conn.HosHostAddress.AddressFamily,SocketType.Stream, ProtocolType.Tcp);
 
             PrimeNetClient client = new PrimeNetClient(sender, false)
             {
@@ -397,6 +386,8 @@ namespace RMSIDCUTILS.Network
                     client.GetSocket().Connect(endPoint);
                     client.SocketRead();
                     _isConnecting = false;
+
+                    client.StartHeartbeatTimer();
                 }
                 catch (ObjectDisposedException ex)
                 {

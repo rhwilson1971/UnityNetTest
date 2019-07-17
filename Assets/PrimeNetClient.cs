@@ -2,14 +2,23 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
 using UnityEngine;
 
 namespace RMSIDCUTILS.Network
 {
-    public class PrimeNetClient
+    public interface IPrimeNetClient
+    {
+        bool Poll();
+        void Disconnect();
+        void StartHeartbeatTimer();
+    }
+
+
+    public class PrimeNetClient : IPrimeNetClient
     {
         private const int ONE_SECOND = 1000;
+
+        private PrimeNetHeartbeatTimer _hbTimer;
 
         #region Local Properties
 
@@ -157,8 +166,6 @@ namespace RMSIDCUTILS.Network
             Stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
         }
 
-
-
         /// <summary>
         // This Async method is called when the client actually connects
         // to the server
@@ -270,69 +277,67 @@ namespace RMSIDCUTILS.Network
         {
             bool isConnected = false;
 
-            // .Connect throws an exception if unsuccessful
-            //_socket.Connect(RemoteEndPoint);
-
-            // This is how you can determine whether a socket is still connected.
-            bool blockingState = _socket.Blocking;
-            try
+            // lock (_socket)
             {
-                byte[] tmp = new byte[1];
+                // .Connect throws an exception if unsuccessful
+                //_socket.Connect(RemoteEndPoint);
 
-                _socket.Blocking = false;
-                _socket.Send(tmp, 0, 0);
-                isConnected = true;
-                Debug.Log("The socket should be connected");
-            }
-            catch (SocketException e)
-            {
-                // 10035 == WSAEWOULDBLOCK
-                if (e.NativeErrorCode.Equals(10035))
+                // This is how you can determine whether a socket is still connected.
+                bool blockingState = _socket.Blocking;
+                try
                 {
-                    Debug.Log("Still Connected, but the Send would block");
-                }
-                else
-                {
-                    Debug.Log(string.Format("Disconnected: error code {0}!", e.NativeErrorCode));
-                }
-            }
-            finally
-            {
-                _socket.Blocking = blockingState;
-            }
+                    byte[] tmp = new byte[1];
 
+                    _socket.Blocking = false;
+                    _socket.Send(tmp, 0, 0);
+                    isConnected = true;
+                    Debug.Log("The socket should be connected");
+                }
+                catch (SocketException e)
+                {
+                    // 10035 == WSAEWOULDBLOCK
+                    if (e.NativeErrorCode.Equals(10035))
+                    {
+                        Debug.Log("Still Connected, but the Send would block");
+                    }
+                    else
+                    {
+                        Debug.Log(string.Format("Disconnected: error code {0}!", e.NativeErrorCode));
+                    }
+                }
+                finally
+                {
+                    _socket.Blocking = blockingState;
+                }
+            }
             return isConnected;
         }
+        #endregion
 
-        private void SendHeartbeat()
+        #region IPrimeNetClient Interfaces
+        public bool Poll()
         {
-            Task task = new Task(() =>
-           {
-               bool signaled = _heartbeatEvent.WaitOne(ONE_SECOND);
-
-               if (signaled == false)
-               {
-                   if (!IsSocketConnected())
-                   {
-                       SendDisconnectMessage();
-                   }
-               }
-           });
-
-            task.Start();
+            return IsSocketConnected();
         }
 
-        private void SendDisconnectMessage()
+        public void Disconnect()
         {
-            PrimeNetMessage
-                 message = new PrimeNetMessage
-                 {
-                     MessageBody = "Disconnected from remote end",
-                     NetMessage = _connectInfo.IsServer ? EPrimeNetMessage.ClientConnected : EPrimeNetMessage.ServerDisconnected,
-                     SenderIP = _connectInfo.HosHostAddress.ToString()
-                 };
+            _hbTimer.Stop();
+
+            PrimeNetMessage message = new PrimeNetMessage
+            {
+                MessageBody = "Disconnected from remote end",
+                NetMessage = _connectInfo.IsServer ? EPrimeNetMessage.ClientConnected : EPrimeNetMessage.ServerDisconnected,
+                SenderIP = _connectInfo.HosHostAddress.ToString()
+            };
 
             PublishDataReceived(new DataReceivedEvent(message.Serialize()));
+        }
+
+        public void StartHeartbeatTimer()
+        {
+            _hbTimer = new PrimeNetHeartbeatTimer(this, 3);
+            _hbTimer.Start();
         }
         #endregion
     }

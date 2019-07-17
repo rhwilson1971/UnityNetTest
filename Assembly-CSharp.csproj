@@ -91,6 +91,7 @@
     <Compile Include="Assets\Mirror\Examples\Tanks\Scripts\Tank.cs" />
     <Compile Include="Assets\MoveCube.cs" />
     <Compile Include="Assets\PrimeNetClient.cs" />
+    <Compile Include="Assets\PrimeNetHeartbeatTimer.cs" />
     <Compile Include="Assets\PrimeNetMessageProxy.cs" />
     <Compile Include="Assets\PrimeNetServer.cs" />
     <Compile Include="Assets\PrimeNetService.cs" />
