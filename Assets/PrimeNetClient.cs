@@ -337,6 +337,7 @@ namespace RMSIDCUTILS.Network
 
         public void StartHeartbeatTimer()
         {
+             
             _hbTimer = new PrimeNetHeartbeatTimer(this, 3);
             _hbTimer.Start();
         }
