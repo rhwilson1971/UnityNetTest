@@ -35,9 +35,16 @@ public class UpdateCanvasElements : MonoBehaviour
 
                 if(message.NetMessage == EPrimeNetMessage.ClientConnected)
                 {
-                    _DisplayText.text = "A client has connected";
+                    _DisplayText.text = "Process Message - A client has connected";
 
                     HandleConnectedClient(message);
+                }
+
+                if(message.NetMessage == EPrimeNetMessage.ClientDisconnected)
+                {
+                    _DisplayText.text = "Process Message - A client has disconnected " + message.MessageBody;
+
+                    HandleDisconnectedClient(message);
                 }
             }
             else
@@ -62,7 +69,27 @@ public class UpdateCanvasElements : MonoBehaviour
 
     void HandleConnectedClient(PrimeNetMessage message)
     {
-        _ConnectedClients.options.Add(new Dropdown.OptionData(message.MessageBody));
+        if (_NetService._IsManager)
+        {
+            _ConnectedClients.options.Add(new Dropdown.OptionData(message.MessageBody));
+        }
+        else
+        {
+            _ConnectedClients.options.Add(new Dropdown.OptionData("Connected to remote server at " + _NetService._HostNameOrIP));
+        }
+    }
+
+    void HandleDisconnectedClient(PrimeNetMessage message)
+    {
+        Debug.Log("Disconn client");
+        Debug.Log(message.SenderIP);
+        Debug.Log(message.MessageBody);
+
+        if(_NetService._IsManager)
+            _ConnectedClients.options.RemoveAll(item => item.text == message.MessageBody);
+        else
+            _ConnectedClients.options.Add(new Dropdown.OptionData("Disconnected from remote server at " + _NetService._HostNameOrIP));
+
     }
 
 }

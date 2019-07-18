@@ -50,7 +50,7 @@ namespace RMSIDCUTILS.Network
         // Queue<PrimeNetMessage> _messageQueue = new Queue<PrimeNetMessage>();
 
         private ConcurrentQueue<PrimeNetMessage> _mQueue = new ConcurrentQueue<PrimeNetMessage>();
-        private List<string> _clientList = new List<string>();
+        private readonly List<string> _clientList = new List<string>();
 
         #endregion
 
@@ -120,8 +120,10 @@ namespace RMSIDCUTILS.Network
 
         public void StopService()
         {
+            Debug.Log("Stopping the netserverce");
             if (!IsRunning)
             {
+                Debug.Log("netserverce reports its not running");
                 return;
             }
 
@@ -150,10 +152,8 @@ namespace RMSIDCUTILS.Network
 
         public void HandleMessageReceived(object sender, NetworkMessageEvent e)
         {
-            // switch (e.Data.NetMessage}
             Debug.Log("Should have gotten a new message from handler");
-            // _messageQueue.Enqueue(e.Data);
-            _Text.text = string.Format("Got message - {0}", e.Data.MessageBody);
+            // _Text.text = string.Format("Got message - {0}", e.Data.MessageBody);
             ProcessIncommingMessages(e.Data);
         }
 
@@ -169,7 +169,7 @@ namespace RMSIDCUTILS.Network
         {
             //_networkServer.
 
-            return null;
+            return _networkServer.ClientList;
         }
 
         public PrimeNetMessage Dequeue()
@@ -213,6 +213,11 @@ namespace RMSIDCUTILS.Network
         }
         #endregion
 
+        public void OnDestroy()
+        {
+            Debug.Log("Getting ready to DIE!");
+            StopService();
+        }
 
     }
 }

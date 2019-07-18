@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -16,25 +17,20 @@ namespace RMSIDCUTILS.Network
 
     public class PrimeNetClient : IPrimeNetClient
     {
-        private PrimeNetHeartbeatTimer _hbTimer;
+
 
         #region Local Properties
-
-        private ManualResetEvent _heartbeatEvent = new ManualResetEvent(false);
-
-
+        private PrimeNetHeartbeatTimer _hbTimer;
         private bool _isLocal = false;
         private readonly TcpClient _client;
         private readonly Socket _socket;
         private readonly byte[] buffer = new byte[5000];
         private readonly ConnectionInfo _connectInfo;
         private EndPoint _endPoint;
-
         private NetworkStream Stream
         {
             get { return _client.GetStream(); }
         }
-
         private NetworkStream _stream;
         private ManualResetEvent _connectionPollEvent = new ManualResetEvent(false);
         #endregion
@@ -45,6 +41,7 @@ namespace RMSIDCUTILS.Network
         public TcpClient GetClient() { return _client; }
         public Socket GetSocket() { return _socket; }
         public EndPoint RemoteEndPoint;
+        public bool IsActive { get; set; }
         #endregion
 
         #region Constructors
@@ -74,11 +71,12 @@ namespace RMSIDCUTILS.Network
             }
         }
 
-        public PrimeNetClient(Socket socket, bool isConnected = true) : this()
+        public PrimeNetClient(Socket socket, bool isConnected = true, ConnectionInfo conn = null) : this()
         {
             Debug.Log("Initializing network socket");
 
             _socket = socket;
+            _connectInfo = conn;
 
             if (isConnected)
             {
@@ -88,6 +86,7 @@ namespace RMSIDCUTILS.Network
                 _stream = new NetworkStream(_socket);
                 _stream.BeginRead(buffer, 0, buffer.Length, OnSocketRead, null);
                 Debug.Log("In here?");
+                IsActive = true;
             }
         }
         #endregion
@@ -95,27 +94,66 @@ namespace RMSIDCUTILS.Network
         #region Private Implementation
         internal void Close()
         {
-            _client.Close();
+            if(_hbTimer != null)
+            {
+                _hbTimer.Stop();
+            }
+
+            if(_stream != null)
+            {
+                _stream.Close();
+            }
+
+            if (_socket != null)
+            {
+                try
+                {
+                    _socket.Close();
+                }
+                catch(ObjectDisposedException ex)
+                {
+                    // _socket = null;
+                    Debug.Log("Caught socket exception while exiting -  " + ex.Message);
+                }
+            }
+
+            if (_client != null)
+            {
+                _client.Close();
+            }
         }
 
         private void OnSocketRead(IAsyncResult ar)
         {
-            _heartbeatEvent.Set();
+            if(_hbTimer != null)
+            {
+                _hbTimer.ResetTimer();
+            }
 
-            Debug.Log("Beginning to receive data");
+            Debug.Log("Beginning to receive socket data");
             int length = _stream.EndRead(ar);
             if (length <= 0)
             {
                 Debug.Log("Someone disconnected");
+                Debug.Log("The connection is -> " + _connectInfo);
 
-                PrimeNetMessage
-                     message = new PrimeNetMessage
-                     {
-                         MessageBody = "Disconnected from remote end",
-                         NetMessage = _connectInfo.IsServer ? EPrimeNetMessage.ClientConnected : EPrimeNetMessage.ServerDisconnected,
-                         SenderIP = _connectInfo.HosHostAddress.ToString()
-                     };
+                var message = new PrimeNetMessage
+                {
+                    MessageBody = ClientNumber.ToString(),
+                    NetMessage = _connectInfo.IsServer ? EPrimeNetMessage.ClientDisconnected : EPrimeNetMessage.ServerDisconnected,
+                    SenderIP = _connectInfo.HosHostAddress.ToString()
+                };
 
+                Debug.Log("HB Timer? " + _hbTimer != null);
+                if (_hbTimer != null)
+                {
+                    Debug.Log("Stopping timer after disconnect from socket");
+                    _hbTimer.Stop();
+                }
+
+                IsActive = false;
+
+                Debug.Log("Is message being sent?");
                 PublishDataReceived(new DataReceivedEvent(message.Serialize()));
                 return;
             }
@@ -126,6 +164,8 @@ namespace RMSIDCUTILS.Network
             Debug.Log("Recieved message " + receivedData);
             PublishDataReceived(new DataReceivedEvent(receivedData));
 
+            IsActive = true;
+
             // Clear current buffer and look for more data from the server
             Array.Clear(buffer, 0, buffer.Length);
             _stream.BeginRead(buffer, 0, buffer.Length, OnSocketRead, null);
@@ -133,24 +173,34 @@ namespace RMSIDCUTILS.Network
 
         private void OnRead(IAsyncResult ar)
         {
-            _connectionPollEvent.Reset();
+            _hbTimer.ResetTimer();
 
-            Debug.Log("Beginning to receive data");
+            Debug.Log("OnRead: Beginning to receive data");
             int length = Stream.EndRead(ar);
             if (length <= 0)
             {
-                Debug.Log("Someone disconnected");
+                Debug.Log("OnRead: Someone disconnected");
 
                 PrimeNetMessage
                      message = new PrimeNetMessage
                      {
-                         MessageBody = "Disconnected from remote end",
+                         MessageBody = ClientID.ToString(),
                          NetMessage = _connectInfo.IsServer ? EPrimeNetMessage.ClientConnected : EPrimeNetMessage.ServerDisconnected,
                          SenderIP = _connectInfo.HosHostAddress.ToString()
                      };
 
                 PublishDataReceived(new DataReceivedEvent(message.Serialize()));
+
+                _hbTimer.Stop();
+
+                IsActive = false;
+
                 return;
+            }
+
+            if (length == 1) // HB
+            {
+
             }
 
             string newMessage = System.Text.Encoding.UTF8.GetString(buffer, 0, length);
@@ -185,17 +235,38 @@ namespace RMSIDCUTILS.Network
 
         public void Read()
         {
+            IsActive = true;
             Stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
         }
 
         public void SocketRead()
         {
-            Debug.Log("Socket read setup ");
-            if (_stream == null)
+            try
             {
-                _stream = new NetworkStream(_socket);
+                Debug.Log("Socket read setup ");
+                if (_stream == null)
+                {
+                    _stream = new NetworkStream(_socket);
+                }
+                _stream.BeginRead(buffer, 0, buffer.Length, OnSocketRead, null);
+                IsActive = true;
             }
-            _stream.BeginRead(buffer, 0, buffer.Length, OnSocketRead, null);
+            catch(IOException ex)
+            {
+                Debug.Log("Error reading socket content " + ex.Message);
+            }
+            catch(ObjectDisposedException ex)
+            {
+                Debug.Log("Error reading socket content " + ex.Message);
+            }
+            catch(ArgumentNullException ex)
+            {
+                Debug.Log("Error reading socket content " + ex.Message);
+            }
+            catch(ArgumentOutOfRangeException ex)
+            {
+                Debug.Log("Error reading socket content " + ex.Message);
+            }
         }
 
         // Wrap event invocations inside a protected virtual method
@@ -289,7 +360,7 @@ namespace RMSIDCUTILS.Network
                     _socket.Blocking = false;
                     _socket.Send(tmp, 0, 0);
                     isConnected = true;
-                    Debug.Log("The socket should be connected");
+                    Debug.Log("Heartbeat successfull");
                 }
                 catch (SocketException e)
                 {
@@ -337,7 +408,6 @@ namespace RMSIDCUTILS.Network
 
         public void StartHeartbeatTimer()
         {
-             
             _hbTimer = new PrimeNetHeartbeatTimer(this, 3);
             _hbTimer.Start();
         }

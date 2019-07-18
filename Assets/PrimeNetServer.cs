@@ -56,6 +56,8 @@ namespace RMSIDCUTILS.Network
         public event EventHandler<NetworkMessageEvent> NetworkMessageReceived;
         #endregion
 
+        #region Unity Overrides
+
         private void Awake()
         {
             //instance = this;
@@ -77,6 +79,19 @@ namespace RMSIDCUTILS.Network
             else
             {
                 StartSocketClient();
+            }
+        }
+        #endregion
+
+        public List<PrimeNetClient> ClientList
+        {
+            get { return _clientList;  }
+            private set
+            {
+                if(_clientList == null)
+                {
+                    _clientList = new List<PrimeNetClient>();
+                }
             }
         }
 
@@ -101,10 +116,9 @@ namespace RMSIDCUTILS.Network
         public void OnServerSocketConnect(IAsyncResult ar)
         {
             Debug.Log("Client connecting to this server");
-
             Socket socket = _listener.EndAcceptSocket(ar);
 
-            PrimeNetClient nc = new PrimeNetClient(socket)
+            PrimeNetClient nc = new PrimeNetClient(socket, true, _conn)
             {
                 ClientNumber = _clientList.Count + 1,
                 RemoteEndPoint = new IPEndPoint(_conn.HosHostAddress.Address, (int)_conn.Port)
@@ -166,6 +180,21 @@ namespace RMSIDCUTILS.Network
 
             var netMsg = PrimeNetMessage.Deserialize(e.Data);
             Debug.Log("message desrialized Body of message is {" + netMsg.MessageBody + "}");
+
+            if(netMsg.NetMessage == EPrimeNetMessage.ClientDisconnected || netMsg.NetMessage == EPrimeNetMessage.ServerDisconnected)
+            {
+                var id = int.Parse(netMsg.MessageBody);
+                var client = _clientList.Find(i => i.ClientNumber == id);
+                client.DataReceived -= OnDataReceived;
+
+                _clientList.Remove(client);
+
+                if(netMsg.NetMessage == EPrimeNetMessage.ServerDisconnected)
+                {
+                    StartSocketClient(); // go back into  connecting to server
+                }
+            }
+
             PublishNetworkMessage(new NetworkMessageEvent(netMsg));
         }
 
@@ -209,7 +238,7 @@ namespace RMSIDCUTILS.Network
             IPEndPoint localEndPoint = new IPEndPoint(_conn.HosHostAddress.Address, (int)_conn.Port);
             Socket sender = new Socket(_conn.HosHostAddress.AddressFamily,SocketType.Stream, ProtocolType.Tcp);
 
-            PrimeNetClient client = new PrimeNetClient(sender, false)
+            PrimeNetClient client = new PrimeNetClient(sender, false, _conn)
             {
                 RemoteEndPoint = localEndPoint
             };
@@ -266,13 +295,18 @@ namespace RMSIDCUTILS.Network
 
         public void Shutdown()
         {
-            foreach(var client in _clientList)
+            Debug.Log("Shutting down the netserver");
+
+            if (_conn.IsServer)
             {
-                if (client.IsConnected())
-                    client.Close();
+                _listener.Stop();
             }
 
-            _listener.Stop();
+            foreach (var client in _clientList)
+            {
+                Debug.Log("closing client");
+                client.Close();
+            }
         }
 
         public void Send(Guid id, PrimeNetMessage message)
@@ -328,11 +362,18 @@ namespace RMSIDCUTILS.Network
 
             foreach (var client in _clientList)
             {
-                if (client.IsSocketConnected())
+                try
                 {
-                    message.SenderIP = _conn.HosHostAddress.ToString();
-                    StatusMessage("Sending to a connected client");
-                    client.SocketSend(message.Serialize());
+                    if (client.IsSocketConnected())
+                    {
+                        message.SenderIP = _conn.HosHostAddress.ToString();
+                        StatusMessage("Sending to a connected client");
+                        client.SocketSend(message.Serialize());
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Debug.Log("Error sending message to a client - " + ex.Message);
                 }
             }
         }
@@ -387,7 +428,10 @@ namespace RMSIDCUTILS.Network
                     client.SocketRead();
                     _isConnecting = false;
 
-                    client.StartHeartbeatTimer();
+                    //if (client.IsActive)
+                    {
+                        client.StartHeartbeatTimer();
+                    }
                 }
                 catch (ObjectDisposedException ex)
                 {
@@ -397,6 +441,7 @@ namespace RMSIDCUTILS.Network
                 {
                     Debug.Log(ex.Message);
                 }
+                
 
                 if (_isConnecting == true)
                 {

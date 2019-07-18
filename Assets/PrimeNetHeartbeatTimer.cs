@@ -14,7 +14,7 @@ namespace RMSIDCUTILS.Network
         private bool _shouldQuit = false;
         ManualResetEvent _resetHeartbeat = new ManualResetEvent(false);
         IPrimeNetClient _netClient;
-        
+        Thread _hbThread;
         #endregion
 
         #region Public properties
@@ -29,6 +29,7 @@ namespace RMSIDCUTILS.Network
             MaxRetries = maxRetries;
             _netClient = netClient;
             _shouldQuit = false;
+            _numRetries = 1;
         }
 
         public PrimeNetHeartbeatTimer(IPrimeNetClient netClient) : this (netClient, 3)
@@ -40,7 +41,10 @@ namespace RMSIDCUTILS.Network
 
         public void Start()
         {
-            new Task(ProcessTimer);
+            Debug.Log("Starting HB Timer");
+            _hbThread = new Thread(ProcessTimer);
+            _hbThread.Start();
+            // _myTask = new Task(ProcessTimer);
         }
 
         public void ResetTimer()
@@ -53,7 +57,7 @@ namespace RMSIDCUTILS.Network
             Debug.Log("timer started");
             while (_shouldQuit == false)
             {
-                var status = _resetHeartbeat.WaitOne(1000);
+                var status = _resetHeartbeat.WaitOne(3000);
 
                 if (_shouldQuit)
                     continue;
@@ -72,7 +76,7 @@ namespace RMSIDCUTILS.Network
                         }
                         else
                         {
-                            _numRetries = 0;
+                            _numRetries = 1;
                         }
                     }
                 }
