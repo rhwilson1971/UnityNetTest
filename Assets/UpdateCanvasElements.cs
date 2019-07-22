@@ -10,6 +10,7 @@ public class UpdateCanvasElements : MonoBehaviour
 
     public Dropdown _ConnectedClients;
     public Text _DisplayText;
+    public InputField _MyMessage;
     public PrimeNetService _NetService;
     bool haveMessage = false;
 
@@ -24,7 +25,6 @@ public class UpdateCanvasElements : MonoBehaviour
     {
 
     }
-
 
     private void LateUpdate()
     {
@@ -47,6 +47,16 @@ public class UpdateCanvasElements : MonoBehaviour
                     _DisplayText.text = "Process Message - A client has disconnected " + message.MessageBody;
 
                     HandleDisconnectedClient(message);
+                }
+
+                if(message.NetMessage == EPrimeNetMessage.ServerConnected)
+                {
+                    HandleServerConnected(message);
+                }
+
+                if(message.NetMessage == EPrimeNetMessage.ServerListening)
+                {
+                    HandleServerListening(message);
                 }
             }
             else
@@ -103,6 +113,44 @@ public class UpdateCanvasElements : MonoBehaviour
 
     }
 
+    void HandleServerDisconnected(PrimeNetMessage message)
+    {
+        Debug.Log("Disconn server");
+        Debug.Log(message.SenderIP);
+        Debug.Log(message.MessageBody);
+
+        _DisplayText.text = "Server disconnected, retrying....";
+    }
+
+    void HandleServerConnected(PrimeNetMessage message)
+    {
+        _DisplayText.text = "Server connected, you can send message";
+
+        var button =
+            GameObject.Find("ToClient").GetComponent<Button>();
+
+        Debug.Log("Found To client button? " + button);
+
+        if (button != null)
+        {
+            button.enabled = false;
+        }
+
+    }
+
+    void HandleServerListening(PrimeNetMessage message)
+    {
+        var button=
+            GameObject.Find("ToServer").GetComponent<Button>();
+
+        Debug.Log("Found button? " + button);
+
+        if(button != null)
+        {
+            button.enabled = false;
+        }
+    }
+
     public void StartService(GameObject caller)
     {
         Debug.Log("caller is " + caller.name);
@@ -122,5 +170,42 @@ public class UpdateCanvasElements : MonoBehaviour
         {
             _NetService.StartService(toggle.isOn, ipAddressText.text, int.Parse(portText.text));
         }
+    }
+
+    public void ToServer_OnClick()
+    {
+        Debug.Log("ToServer");
+
+        if (string.IsNullOrEmpty(_MyMessage.text))
+            return;
+
+
+        var message = new PrimeNetMessage
+        {
+            MessageBody = _MyMessage.text,
+            NetMessage = EPrimeNetMessage.Generic
+        };
+
+        if (_NetService == null)
+        {
+            Debug.Log("Net service is null");
+        }
+        _NetService?.Broadcast(message);
+    }
+
+    public void ToClient_OnClick()
+    {
+        Debug.Log("To Client");
+        if (string.IsNullOrEmpty(_MyMessage.text))
+            return;
+
+
+        var message = new PrimeNetMessage
+        {
+            MessageBody = _MyMessage.text,
+            NetMessage = EPrimeNetMessage.Generic
+        };
+
+        _NetService?.Broadcast(message);
     }
 }

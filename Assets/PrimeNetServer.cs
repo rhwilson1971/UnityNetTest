@@ -105,12 +105,29 @@ namespace RMSIDCUTILS.Network
             // Security.PrefetchSocketPolicy(_ipAddress, _port);
             Debug.Log("Listen for connections ");
 
-            _listener = new TcpListener(_conn.HosHostAddress, (int)_conn.Port);
-            _listener.Start();
+            try
+            {
+                _listener = new TcpListener(_conn.HosHostAddress, (int)_conn.Port);
+                _listener.Start();
 
-            StatusMessage("Asynchronously listening for connections");
-            // _listener.BeginAcceptTcpClient(OnServerConnect, null); // async function
-            _listener.BeginAcceptSocket(OnServerSocketConnect, null);
+                //StatusMessage("Asynchronously listening for connections");
+
+                PrimeNetMessage message = new PrimeNetMessage()
+                {
+                    NetMessage = EPrimeNetMessage.ServerListening,
+                    SenderIP = _conn.HosHostAddress.ToString(),
+                    DestinationIP = _conn.HosHostAddress.ToString(),
+                    MessageBody = "Asynchronously listening for connections"
+                };
+
+                PublishNetworkMessage(new NetworkMessageEvent(message));
+                
+                _listener.BeginAcceptSocket(OnServerSocketConnect, null);
+            }
+            catch(SocketException ex    )
+            {
+                Debug.Log("There was a socket exception");
+            }
         }
 
         public void OnServerSocketConnect(IAsyncResult ar)
@@ -183,6 +200,7 @@ namespace RMSIDCUTILS.Network
 
             if(netMsg.NetMessage == EPrimeNetMessage.ClientDisconnected || netMsg.NetMessage == EPrimeNetMessage.ServerDisconnected)
             {
+                Debug.Log("Disconnected");
                 var id = int.Parse(netMsg.MessageBody);
                 var client = _clientList.Find(i => i.ClientNumber == id);
                 client.DataReceived -= OnDataReceived;
@@ -433,10 +451,15 @@ namespace RMSIDCUTILS.Network
                     client.SocketRead();
                     _isConnecting = false;
 
-                    //if (client.IsActive)
+                    client.StartHeartbeatTimer();
+
+                    PrimeNetMessage m = new PrimeNetMessage()
                     {
-                        client.StartHeartbeatTimer();
-                    }
+                        NetMessage = EPrimeNetMessage.ServerConnected,
+                        MessageBody = "Server connected",
+                    };
+
+                    PublishNetworkMessage(new NetworkMessageEvent(m));
                 }
                 catch (ObjectDisposedException ex)
                 {
@@ -499,6 +522,7 @@ namespace RMSIDCUTILS.Network
     public enum EPrimeNetMessage
     {
         ClientReady,
+        ClientConnecting,
         ClientConnected,
         ClientDisconnected,
         Pause,
@@ -509,6 +533,7 @@ namespace RMSIDCUTILS.Network
         ServerReady,
         ServerConnected,
         ServerDisconnected,
+        ServerListening,
         Generic,
         Status
     }

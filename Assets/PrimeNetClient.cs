@@ -386,7 +386,9 @@ namespace RMSIDCUTILS.Network
         #region IPrimeNetClient Interfaces
         public bool Poll()
         {
-            return IsSocketConnected();
+            var status = IsSocketConnected();
+
+            return status;
         }
 
         public void Disconnect()

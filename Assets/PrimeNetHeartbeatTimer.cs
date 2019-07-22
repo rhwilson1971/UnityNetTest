@@ -44,7 +44,6 @@ namespace RMSIDCUTILS.Network
             Debug.Log("Starting HB Timer");
             _hbThread = new Thread(ProcessTimer);
             _hbThread.Start();
-            // _myTask = new Task(ProcessTimer);
         }
 
         public void ResetTimer()
