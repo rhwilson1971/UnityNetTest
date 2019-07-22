@@ -18,6 +18,8 @@ namespace RMSIDCUTILS.Network
         // start the network interfaces
         void StartService();
 
+        void StartService(bool isServer, string ipAddress, int port);
+
         // shutdown the network interface
         void StopService();
 
@@ -78,6 +80,35 @@ namespace RMSIDCUTILS.Network
         #endregion
 
         #region Public Interfaces
+        public void StartService(bool isServer, string ipAddress, int port)
+        {
+            if (IsRunning)
+            {
+                return;
+            }
+
+            _conn = new ConnectionInfo()
+            {
+                HosHostAddress = IPAddress.Parse(ipAddress),
+                IsServer = isServer,
+                Port = (uint)port,
+                Protocol = 0
+            };
+
+            if (_networkServer == null)
+            {
+                var message = string.Format("IP:{0}, Port:{1}, IsServer:{2}", _conn.HosHostAddress, _conn.Port, _conn.IsServer);
+                Debug.Log(message);
+                _Text.text = message;
+
+                _networkServer = new PrimeNetServer(_conn);
+                _networkServer.NetworkMessageReceived += HandleMessageReceived;
+                _networkServer.Startup();
+            }
+            IsRunning = true;
+        }
+
+
         public void StartService()
         {
             if (IsRunning)
@@ -85,16 +116,16 @@ namespace RMSIDCUTILS.Network
                 return;
             }
 
+            _conn = new ConnectionInfo()
+            {
+                HosHostAddress = IPAddress.Parse(_HostNameOrIP),
+                IsServer = _IsManager,
+                Port = _Port == 0 ? ConnectionInfo.DefaultPort : _Port,
+                Protocol = 0
+            };
+
             if (_networkServer == null)
             {
-                _conn = new ConnectionInfo()
-                {
-                    HosHostAddress = IPAddress.Parse(_HostNameOrIP),
-                    IsServer = _IsManager,
-                    Port = _Port == 0 ? ConnectionInfo.DefaultPort : _Port,
-                    Protocol = 0
-                };
-
                 var message = string.Format("IP:{0}, Port:{1}, IsServer:{2}", _conn.HosHostAddress, _conn.Port, _conn.IsServer);
                 Debug.Log(message);
                 _Text.text = message;
@@ -206,10 +237,10 @@ namespace RMSIDCUTILS.Network
         #region Unity
         private void Awake()
         {
-            if (!IsRunning)
-            {
-                StartService();
-            }
+            //if (!IsRunning)
+            //{
+            //    StartService();
+            //}
         }
         #endregion
 

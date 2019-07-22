@@ -301,10 +301,15 @@ namespace RMSIDCUTILS.Network
             {
                 _listener.Stop();
             }
+            else
+            {
+                _quitAppEvent.Set();
+            }
 
             foreach (var client in _clientList)
             {
                 Debug.Log("closing client");
+                client.DataReceived -= OnDataReceived;
                 client.Close();
             }
         }

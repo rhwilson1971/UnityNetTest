@@ -23,7 +23,7 @@ public class ButtonHandlers : MonoBehaviour
         };
 
 
-        if(_NetworkService == null )
+        if (_NetworkService == null)
         {
             Debug.Log("Net service is null");
         }
@@ -41,5 +41,18 @@ public class ButtonHandlers : MonoBehaviour
         };
 
         _NetworkService?.Broadcast(message);
+    }
+
+    public void StartNetwork()
+    {
+        if (_NetworkService.IsRunning == false)
+        {
+            _NetworkService.StartService();
+        }
+    }
+
+    public void StopNetwork()
+    {
+        _NetworkService.StopService();
     }
 }

@@ -22,7 +22,9 @@ public class UpdateCanvasElements : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+
     }
+
 
     private void LateUpdate()
     {
@@ -56,7 +58,16 @@ public class UpdateCanvasElements : MonoBehaviour
 
     private void Awake()
     {
+        var toggle = FindObjectOfType<Toggle>();
+
+        if(null != toggle)
+        {
+            Debug.Log("Toggle says its - " + toggle.isOn);
+        }
+
+        Debug.Log("Did find the toggle? " + toggle);
         Debug.Log("What happened in awake?");
+
         _NetService.MessageAvailable += OnNewMessageAvailable;
     }
 
@@ -92,4 +103,24 @@ public class UpdateCanvasElements : MonoBehaviour
 
     }
 
+    public void StartService(GameObject caller)
+    {
+        Debug.Log("caller is " + caller.name);
+
+        if (_NetService.IsRunning)
+            return;
+
+        Toggle toggle = FindObjectOfType<Toggle>();
+        var ipAddressText = GameObject.Find("IPAddressText").GetComponent<Text>();
+        var portText = GameObject.Find("PortText").GetComponent<Text>();
+
+        if (!string.IsNullOrEmpty(ipAddressText.text) && !(string.IsNullOrEmpty(portText.text)))
+        {
+            _NetService.StartService(toggle.isOn, ipAddressText.text, int.Parse(portText.text));
+        }
+        else
+        {
+            _NetService.StartService(toggle.isOn, ipAddressText.text, int.Parse(portText.text));
+        }
+    }
 }
