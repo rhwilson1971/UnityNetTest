@@ -1,9 +1,7 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using RMSIDCUTILS.NetCommander;
+using System;
 using UnityEngine;
 using UnityEngine.UI;
-using RMSIDCUTILS.Network;
-using System;
 
 public class UpdateCanvasElements : MonoBehaviour
 {
@@ -12,16 +10,16 @@ public class UpdateCanvasElements : MonoBehaviour
     public Text _DisplayText;
     public InputField _MyMessage;
     public PrimeNetService _NetService;
-    bool haveMessage = false;
+    private bool haveMessage = false;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
         // _NetService.MessageAvailable += OnNewMessageAvailable;
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
 
     }
@@ -35,26 +33,26 @@ public class UpdateCanvasElements : MonoBehaviour
             {
                 _DisplayText.text = message.MessageBody;
 
-                if(message.NetMessage == EPrimeNetMessage.ClientConnected)
+                if (message.NetMessage == EPrimeNetMessage.ClientConnected)
                 {
                     _DisplayText.text = "Process Message - A client has connected";
 
                     HandleConnectedClient(message);
                 }
 
-                if(message.NetMessage == EPrimeNetMessage.ClientDisconnected)
+                if (message.NetMessage == EPrimeNetMessage.ClientDisconnected)
                 {
                     _DisplayText.text = "Process Message - A client has disconnected " + message.MessageBody;
 
                     HandleDisconnectedClient(message);
                 }
 
-                if(message.NetMessage == EPrimeNetMessage.ServerConnected)
+                if (message.NetMessage == EPrimeNetMessage.ServerConnected)
                 {
                     HandleServerConnected(message);
                 }
 
-                if(message.NetMessage == EPrimeNetMessage.ServerListening)
+                if (message.NetMessage == EPrimeNetMessage.ServerListening)
                 {
                     HandleServerListening(message);
                 }
@@ -68,16 +66,7 @@ public class UpdateCanvasElements : MonoBehaviour
 
     private void Awake()
     {
-        var toggle = FindObjectOfType<Toggle>();
-
-        if(null != toggle)
-        {
-            Debug.Log("Toggle says its - " + toggle.isOn);
-        }
-
-        Debug.Log("Did find the toggle? " + toggle);
-        Debug.Log("What happened in awake?");
-
+        Debug.Log("Registering for new messages from the NetworkService");
         _NetService.MessageAvailable += OnNewMessageAvailable;
     }
 
@@ -88,9 +77,9 @@ public class UpdateCanvasElements : MonoBehaviour
         haveMessage = true;
     }
 
-    void HandleConnectedClient(PrimeNetMessage message)
+    private void HandleConnectedClient(PrimeNetMessage message)
     {
-        if (_NetService._IsManager)
+        if (_NetService._IsServer)
         {
             _ConnectedClients.options.Add(new Dropdown.OptionData(message.MessageBody));
         }
@@ -100,20 +89,23 @@ public class UpdateCanvasElements : MonoBehaviour
         }
     }
 
-    void HandleDisconnectedClient(PrimeNetMessage message)
+    private void HandleDisconnectedClient(PrimeNetMessage message)
     {
         Debug.Log("Disconn client");
         Debug.Log(message.SenderIP);
         Debug.Log(message.MessageBody);
 
-        if(_NetService._IsManager)
+        if (_NetService._IsServer)
+        {
             _ConnectedClients.options.RemoveAll(item => item.text == message.MessageBody);
+        }
         else
+        {
             _ConnectedClients.options.Add(new Dropdown.OptionData("Disconnected from remote server at " + _NetService._HostNameOrIP));
-
+        }
     }
 
-    void HandleServerDisconnected(PrimeNetMessage message)
+    private void HandleServerDisconnected(PrimeNetMessage message)
     {
         Debug.Log("Disconn server");
         Debug.Log(message.SenderIP);
@@ -122,7 +114,7 @@ public class UpdateCanvasElements : MonoBehaviour
         _DisplayText.text = "Server disconnected, retrying....";
     }
 
-    void HandleServerConnected(PrimeNetMessage message)
+    private void HandleServerConnected(PrimeNetMessage message)
     {
         _DisplayText.text = "Server connected, you can send message";
 
@@ -138,25 +130,28 @@ public class UpdateCanvasElements : MonoBehaviour
 
     }
 
-    void HandleServerListening(PrimeNetMessage message)
+    private void HandleServerListening(PrimeNetMessage message)
     {
-        var button=
+        var button =
             GameObject.Find("ToServer").GetComponent<Button>();
 
         Debug.Log("Found button? " + button);
 
-        if(button != null)
+        if (button != null)
         {
             button.enabled = false;
         }
     }
 
-    public void StartService(GameObject caller)
+    public void StartService()
     {
-        Debug.Log("caller is " + caller.name);
 
+        Debug.Log("Starting net services" + _NetService.IsRunning);
+         
         if (_NetService.IsRunning)
+        {
             return;
+        }
 
         Toggle toggle = FindObjectOfType<Toggle>();
         var ipAddressText = GameObject.Find("IPAddressText").GetComponent<Text>();
@@ -170,6 +165,18 @@ public class UpdateCanvasElements : MonoBehaviour
         {
             _NetService.StartService(toggle.isOn, ipAddressText.text, int.Parse(portText.text));
         }
+
+    }
+
+    public void StopService()
+    {
+        if (_NetService.IsRunning)
+        {
+            _NetService.StopService();
+        }
+
+        _DisplayText.text = "Waiting to connect...";
+        _MyMessage.text = "Waitning for network messages";
     }
 
     public void ToServer_OnClick()
@@ -177,8 +184,9 @@ public class UpdateCanvasElements : MonoBehaviour
         Debug.Log("ToServer");
 
         if (string.IsNullOrEmpty(_MyMessage.text))
+        {
             return;
-
+        }
 
         var message = new PrimeNetMessage
         {
@@ -197,8 +205,9 @@ public class UpdateCanvasElements : MonoBehaviour
     {
         Debug.Log("To Client");
         if (string.IsNullOrEmpty(_MyMessage.text))
+        {
             return;
-
+        }
 
         var message = new PrimeNetMessage
         {

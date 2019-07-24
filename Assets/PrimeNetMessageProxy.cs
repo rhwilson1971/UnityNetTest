@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using RMSIDCUTILS.Network;
+using RMSIDCUTILS.NetCommander;
 
 public class PrimeNetMessageProxy 
 {

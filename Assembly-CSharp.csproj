@@ -11,7 +11,7 @@
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <RootNamespace></RootNamespace>
-    <ProjectGuid>{B2B58FB2-4462-6B0C-A872-40DD957E5FE0}</ProjectGuid>
+    <ProjectGuid>{6A9CD8D2-48D6-3D3D-56B0-1E3094E4872A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <AssemblyName>Assembly-CSharp</AssemblyName>
@@ -62,61 +62,30 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\ButtonHandlers.cs" />
-    <Compile Include="Assets\Mirror\Components\NetworkAnimator.cs" />
-    <Compile Include="Assets\Mirror\Components\NetworkLobbyManager.cs" />
-    <Compile Include="Assets\Mirror\Components\NetworkLobbyPlayer.cs" />
-    <Compile Include="Assets\Mirror\Components\NetworkProximityChecker.cs" />
-    <Compile Include="Assets\Mirror\Components\NetworkTransform.cs" />
-    <Compile Include="Assets\Mirror\Components\NetworkTransformBase.cs" />
-    <Compile Include="Assets\Mirror\Components\NetworkTransformChild.cs" />
-    <Compile Include="Assets\Mirror\Examples\AdditiveScenes\Scripts\AdditiveNetworkManager.cs" />
-    <Compile Include="Assets\Mirror\Examples\AdditiveScenes\Scripts\PlayerController.cs" />
-    <Compile Include="Assets\Mirror\Examples\AdditiveScenes\Scripts\SceneLoader.cs" />
-    <Compile Include="Assets\Mirror\Examples\AdditiveScenes\Scripts\ShootingTankBehaviour.cs" />
-    <Compile Include="Assets\Mirror\Examples\AdditiveScenes\Scripts\ZoneHandler.cs" />
-    <Compile Include="Assets\Mirror\Examples\Basic\Scripts\Player.cs" />
-    <Compile Include="Assets\Mirror\Examples\ListServer\ListServer.cs" />
-    <Compile Include="Assets\Mirror\Examples\ListServer\UI\UIServerStatusSlot.cs" />
-    <Compile Include="Assets\Mirror\Examples\Lobby\Scripts\NetworkLobbyManagerExt.cs" />
-    <Compile Include="Assets\Mirror\Examples\Lobby\Scripts\NetworkLobbyPlayerExt.cs" />
-    <Compile Include="Assets\Mirror\Examples\Lobby\Scripts\OfflineGUI.cs" />
-    <Compile Include="Assets\Mirror\Examples\Lobby\Scripts\PlayerController.cs" />
-    <Compile Include="Assets\Mirror\Examples\Lobby\Scripts\Reward.cs" />
-    <Compile Include="Assets\Mirror\Examples\Lobby\Scripts\Spawner.cs" />
-    <Compile Include="Assets\Mirror\Examples\Pong\Scripts\Ball.cs" />
-    <Compile Include="Assets\Mirror\Examples\Pong\Scripts\NetworkManagerPong.cs" />
-    <Compile Include="Assets\Mirror\Examples\Pong\Scripts\Player.cs" />
-    <Compile Include="Assets\Mirror\Examples\Tanks\Scripts\Projectile.cs" />
-    <Compile Include="Assets\Mirror\Examples\Tanks\Scripts\Tank.cs" />
     <Compile Include="Assets\MoveCube.cs" />
-    <Compile Include="Assets\PrimeNetClient.cs" />
     <Compile Include="Assets\PrimeNetHeartbeatTimer.cs" />
     <Compile Include="Assets\PrimeNetMessageProxy.cs" />
-    <Compile Include="Assets\PrimeNetServer.cs" />
     <Compile Include="Assets\PrimeNetService.cs" />
+    <Compile Include="Assets\PrimeNetTransportClient.cs" />
+    <Compile Include="Assets\PrimetNetTransportManager.cs" />
     <Compile Include="Assets\UpdateCanvasElements.cs" />
-    <None Include="Assets\Mirror\Readme.txt" />
-    <None Include="Assets\Mirror\License.txt" />
-    <None Include="Assets\Mirror\Examples\Tanks\Models\(Public Domain) Recon_Tank\Recon_Tank - License.txt" />
-    <None Include="Assets\Mirror\Examples\Tanks\Textures\(Public Domain) Dirt Hand Painted Texture\Dirt Hand Painted Texture - License.txt" />
     <Reference Include="Unity.Timeline.Editor">
-      <HintPath>C:/dev/Unityu/New Unity Project/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
+      <HintPath>C:/dev/Unityu/UnityNetTest/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro.Editor">
-      <HintPath>C:/dev/Unityu/New Unity Project/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
+      <HintPath>C:/dev/Unityu/UnityNetTest/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Timeline">
-      <HintPath>C:/dev/Unityu/New Unity Project/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
+      <HintPath>C:/dev/Unityu/UnityNetTest/Library/ScriptAssemblies/Unity.Timeline.dll</HintPath>
     </Reference>
     <Reference Include="Unity.CollabProxy.Editor">
-      <HintPath>C:/dev/Unityu/New Unity Project/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
+      <HintPath>C:/dev/Unityu/UnityNetTest/Library/ScriptAssemblies/Unity.CollabProxy.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>C:/dev/Unityu/New Unity Project/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
+      <HintPath>C:/dev/Unityu/UnityNetTest/Library/ScriptAssemblies/Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.DataPrivacy">
-      <HintPath>C:/dev/Unityu/New Unity Project/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
+      <HintPath>C:/dev/Unityu/UnityNetTest/Library/ScriptAssemblies/Unity.Analytics.DataPrivacy.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.AIModule">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.1.11f1/Editor/Data/Managed/UnityEngine/UnityEngine.AIModule.dll</HintPath>
@@ -304,29 +273,14 @@
     <Reference Include="Vuforia.UnityExtensions">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.1.11f1/Editor/Data/PlaybackEngines/VuforiaSupport/Managed/Runtime/Vuforia.UnityExtensions.dll</HintPath>
     </Reference>
-    <Reference Include="Mono.CecilX">
-      <HintPath>C:/dev/Unityu/New Unity Project/Assets/Mirror/Plugins/Mono.Cecil/Mono.CecilX.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.CecilX.Mdb">
-      <HintPath>C:/dev/Unityu/New Unity Project/Assets/Mirror/Plugins/Mono.Cecil/Mono.CecilX.Mdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.CecilX.Pdb">
-      <HintPath>C:/dev/Unityu/New Unity Project/Assets/Mirror/Plugins/Mono.Cecil/Mono.CecilX.Pdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.CecilX.Rocks">
-      <HintPath>C:/dev/Unityu/New Unity Project/Assets/Mirror/Plugins/Mono.Cecil/Mono.CecilX.Rocks.dll</HintPath>
-    </Reference>
-    <Reference Include="Telepathy">
-      <HintPath>C:/dev/Unityu/New Unity Project/Assets/Mirror/Runtime/Transport/Telepathy/Telepathy.dll</HintPath>
-    </Reference>
     <Reference Include="Unity.Analytics.Editor">
-      <HintPath>C:/dev/Unityu/New Unity Project/Library/PackageCache/com.unity.analytics@3.3.2/Unity.Analytics.Editor.dll</HintPath>
+      <HintPath>C:/dev/Unityu/UnityNetTest/Library/PackageCache/com.unity.analytics@3.3.2/Unity.Analytics.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.StandardEvents">
-      <HintPath>C:/dev/Unityu/New Unity Project/Library/PackageCache/com.unity.analytics@3.3.2/Unity.Analytics.StandardEvents.dll</HintPath>
+      <HintPath>C:/dev/Unityu/UnityNetTest/Library/PackageCache/com.unity.analytics@3.3.2/Unity.Analytics.StandardEvents.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Analytics.Tracker">
-      <HintPath>C:/dev/Unityu/New Unity Project/Library/PackageCache/com.unity.analytics@3.3.2/Unity.Analytics.Tracker.dll</HintPath>
+      <HintPath>C:/dev/Unityu/UnityNetTest/Library/PackageCache/com.unity.analytics@3.3.2/Unity.Analytics.Tracker.dll</HintPath>
     </Reference>
     <Reference Include="netstandard">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.1.11f1/Editor/Data/NetStandard/ref/2.0.0/netstandard.dll</HintPath>
@@ -673,16 +627,6 @@
     <Reference Include="System.Xml.Serialization">
       <HintPath>C:/Program Files/Unity/Hub/Editor/2019.1.11f1/Editor/Data/NetStandard/compat/2.0.0/shims/netfx/System.Xml.Serialization.dll</HintPath>
     </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="Mirror.Weaver.csproj">
-      <Project>{2B527C0F-F1A4-049D-0F91-1561D6D583E7}</Project>
-      <Name>Mirror.Weaver</Name>
-    </ProjectReference>
-    <ProjectReference Include="Mirror.csproj">
-      <Project>{988ACF21-EF98-6D5F-046B-2CCEBF96A743}</Project>
-      <Name>Mirror</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />

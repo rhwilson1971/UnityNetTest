@@ -5,15 +5,22 @@ using UnityEngine;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace RMSIDCUTILS.Network
+namespace RMSIDCUTILS.NetCommander
 {
-    public class PrimeNetHeartbeatTimer
+    public interface IHeartbeatTimer
+    {
+        void Start();
+        void ResetTimer();
+        void Stop();
+    }
+
+    public class PrimeNetHeartbeatTimer : IHeartbeatTimer
     {
         #region Private properties
         int _numRetries;
         private bool _shouldQuit = false;
         ManualResetEvent _resetHeartbeat = new ManualResetEvent(false);
-        IPrimeNetClient _netClient;
+        INetTransportClient _netClient;
         Thread _hbThread;
         #endregion
 
@@ -24,7 +31,7 @@ namespace RMSIDCUTILS.Network
         #endregion
 
         #region Constructors
-        public PrimeNetHeartbeatTimer(IPrimeNetClient netClient, int maxRetries)
+        public PrimeNetHeartbeatTimer(INetTransportClient netClient, int maxRetries)
         {
             MaxRetries = maxRetries;
             _netClient = netClient;
@@ -32,7 +39,7 @@ namespace RMSIDCUTILS.Network
             _numRetries = 1;
         }
 
-        public PrimeNetHeartbeatTimer(IPrimeNetClient netClient) : this (netClient, 3)
+        public PrimeNetHeartbeatTimer(INetTransportClient netClient) : this (netClient, 3)
         {
             
         }
