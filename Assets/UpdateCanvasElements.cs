@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class UpdateCanvasElements : MonoBehaviour
 {
-
     public Dropdown _ConnectedClients;
     public Text _DisplayText;
     public InputField _MyMessage;
@@ -49,11 +48,13 @@ public class UpdateCanvasElements : MonoBehaviour
 
                 if (message.NetMessage == EPrimeNetMessage.ServerConnected)
                 {
+                    _DisplayText.text = "Server disconnected";
                     HandleServerConnected(message);
                 }
 
                 if (message.NetMessage == EPrimeNetMessage.ServerListening)
                 {
+                    _DisplayText.text = "Server Listening";
                     HandleServerListening(message);
                 }
             }
@@ -68,6 +69,8 @@ public class UpdateCanvasElements : MonoBehaviour
     {
         Debug.Log("Registering for new messages from the NetworkService");
         _NetService.MessageAvailable += OnNewMessageAvailable;
+
+        ConnectionInfo.GetComputerNetworkAddresses();
     }
 
     public void OnNewMessageAvailable(object sender, EventArgs e)

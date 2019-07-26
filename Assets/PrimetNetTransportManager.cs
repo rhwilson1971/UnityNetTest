@@ -8,6 +8,7 @@ using System;
 using UnityEngine.UI;
 using System.Xml.Serialization;
 using System.Threading.Tasks;
+using System.Net.NetworkInformation;
 
 namespace RMSIDCUTILS.NetCommander
 {
@@ -562,6 +563,7 @@ namespace RMSIDCUTILS.NetCommander
     public class ConnectionInfo
     {
         public const int DefaultPort = 50515;
+        public const string DefaultIpAddress = "127.0.0.1";
 
         public bool IsServer;
         public uint Port;
@@ -582,9 +584,29 @@ namespace RMSIDCUTILS.NetCommander
             foreach (var ip in ips)
             {
                 HosHostAddress = ip;
+                Debug.Log("Addr = " + ip.ToString());
             }
 
             Protocol = protocol;
+        }
+
+        public static void GetComputerNetworkAddresses()
+        {
+            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface netInt in adapters)
+            {
+                IPInterfaceProperties properties = netInt.GetIPProperties();
+                foreach (IPAddressInformation addrInfo in properties.UnicastAddresses)
+                {
+                    // Ignore loop-back addresses & IPv6 internet protocol family
+                    // !IPAddress.IsLoopback(uniCast.Address)
+                    if (addrInfo.Address.AddressFamily != AddressFamily.InterNetworkV6)
+                    {
+                        Debug.Log(string.Format("Network Interface: {0}", netInt.Name));
+                        Debug.Log(string.Format("\tAddress: {0}", addrInfo.Address));
+                    }
+                }
+            }
         }
     }
 }

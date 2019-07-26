@@ -23,19 +23,20 @@ namespace RMSIDCUTILS.NetCommander
         // shutdown the network interface
         void StopService();
 
+        // List of Connected Clients, call list again to get latest number of connected clients
+        List<PrimeNetTransportClient> GetClients();
+
         // when the client sends a message, add it to the concurrent priority queue
         void ProcessIncommingMessages(PrimeNetMessage message);
-
-        // 
-        List<PrimeNetTransportClient> GetClients();
 
         PrimeNetMessage Dequeue();
 
         PrimeNetMessage Peek();
-
-        void HandleMessageReceived(object sender, NetworkMessageEvent e);
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
     public class PrimeNetService : MonoBehaviour, IPrimeNetService
     {
         #region Unity Editor Interface
@@ -65,6 +66,12 @@ namespace RMSIDCUTILS.NetCommander
         #endregion
 
         #region Public Interfaces
+        /// <summary>
+        /// Call this method
+        /// </summary>
+        /// <param name="isServer"></param>
+        /// <param name="ipAddress"></param>
+        /// <param name="port"></param>
         public void StartService(bool isServer, string ipAddress, int port)
         {
             Debug.Log("Is the net service running ? " + IsRunning);
@@ -82,7 +89,6 @@ namespace RMSIDCUTILS.NetCommander
                 Protocol = 0
             };
 
-            // 
             _IsServer = _conn.IsServer;
             _HostNameOrIP = _conn.HosHostAddress.ToString();
             _Port = _conn.Port;
@@ -105,7 +111,7 @@ namespace RMSIDCUTILS.NetCommander
 
         public void StartService()
         {
-            StartService(true, "127.0.0.1", ConnectionInfo.DefaultPort);
+            StartService(true, ConnectionInfo.DefaultIpAddress, ConnectionInfo.DefaultPort);
         }
 
         public void StopService()
@@ -159,17 +165,6 @@ namespace RMSIDCUTILS.NetCommander
             PublishMessageAvailable(new EventArgs()); // send a signal that there are new messages
         }
 
-        public void HandleMessageReceived(object sender, NetworkMessageEvent e)
-        {
-            Debug.Log("A new network message event is received, add it to the message queue");
-            ProcessIncommingMessages(e.Data);
-        }
-
-        protected virtual void PublishMessageAvailable(EventArgs e)
-        {
-            MessageAvailable?.Invoke(this, e);
-        }
-
         public List<PrimeNetTransportClient> GetClients()
         {
             return _networkServer.ClientList;
@@ -198,10 +193,10 @@ namespace RMSIDCUTILS.NetCommander
         {
             PrimeNetMessage nextMessage = null;
 
-            //if(_messageQueue.Count > 0)
-            //{
-            //    nextMessage = _messageQueue.Peek();
-            //}
+            if (_mQueue.Count > 0)
+            {
+                _mQueue.TryPeek(out nextMessage);
+            }
 
             return nextMessage;
         }
@@ -216,6 +211,19 @@ namespace RMSIDCUTILS.NetCommander
         {
             Debug.Log("Getting ready to DIE!");
             StopService();
+        }
+        #endregion
+
+        #region Private Implementation
+        void HandleMessageReceived(object sender, NetworkMessageEvent e)
+        {
+            Debug.Log("A new network message event is received, add it to the message queue");
+            ProcessIncommingMessages(e.Data);
+        }
+
+        protected virtual void PublishMessageAvailable(EventArgs e)
+        {
+            MessageAvailable?.Invoke(this, e);
         }
         #endregion
     }
