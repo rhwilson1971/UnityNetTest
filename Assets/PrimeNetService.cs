@@ -67,10 +67,10 @@ namespace RMSIDCUTILS.NetCommander
 
         #region Public Interfaces
         /// <summary>
-        /// Call this method
+        /// Call this method to begin the network services for this project
         /// </summary>
-        /// <param name="isServer"></param>
-        /// <param name="ipAddress"></param>
+        /// <param name="isServer">this is a network server which will allow incoming connections to a defined port</param>
+        /// <param name="ipAddress">Typically, this would be the public IP on the network, e.g. 192.168.1.100</param>
         /// <param name="port"></param>
         public void StartService(bool isServer, string ipAddress, int port)
         {
@@ -109,6 +109,10 @@ namespace RMSIDCUTILS.NetCommander
             IsRunning = true;
         }
 
+        /// <summary>
+        /// Call this method to begin the network services for this project on a local network, where the 
+        /// clients will also be started locally.  127.0.0.1, isServer=true, and the default port is 50515
+        /// </summary>
         public void StartService()
         {
             StartService(true, ConnectionInfo.DefaultIpAddress, ConnectionInfo.DefaultPort);
