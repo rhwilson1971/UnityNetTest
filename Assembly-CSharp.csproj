@@ -63,11 +63,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Assets\MoveCube.cs" />
-    <Compile Include="Assets\PrimeNetHeartbeatTimer.cs" />
-    <Compile Include="Assets\PrimeNetMessageProxy.cs" />
-    <Compile Include="Assets\PrimeNetService.cs" />
-    <Compile Include="Assets\PrimeNetTransportClient.cs" />
-    <Compile Include="Assets\PrimeNetTransportManager.cs" />
+    <Compile Include="Assets\NetCommander\PrimeNetHeartbeatTimer.cs" />
+    <Compile Include="Assets\NetCommander\PrimeNetMessageProxy.cs" />
+    <Compile Include="Assets\NetCommander\PrimeNetService.cs" />
+    <Compile Include="Assets\NetCommander\PrimeNetTransportClient.cs" />
+    <Compile Include="Assets\NetCommander\PrimeNetTransportManager.cs" />
     <Compile Include="Assets\UpdateCanvasElements.cs" />
     <Reference Include="Unity.Timeline.Editor">
       <HintPath>C:/dev/projects/Unity_Dev/UnityNetTest/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
