@@ -29,9 +29,16 @@ namespace RMSIDCUTILS.NetCommander
         // when the client sends a message, add it to the concurrent priority queue
         void ProcessIncommingMessages(PrimeNetMessage message);
 
+        // Remove the message out of the queue and return a copy to calling function
         PrimeNetMessage Dequeue();
 
+        // Get's a copy of the message without removing it from the queue
         PrimeNetMessage Peek();
+
+        // Remove all items out of the queue
+        void Flush();
+
+        bool IsRunning { get; }
     }
 
     /// <summary>
@@ -66,6 +73,17 @@ namespace RMSIDCUTILS.NetCommander
         #endregion
 
         #region Public Interfaces
+        /// <summary>
+        /// Clear out all items in the message queue
+        /// </summary>
+        public void Flush()
+        {
+            while( !_mQueue.IsEmpty )
+            {
+                _mQueue.TryDequeue(out PrimeNetMessage message);
+            }
+        }
+
         /// <summary>
         /// Call this method to begin the network services for this project
         /// </summary>
@@ -118,6 +136,9 @@ namespace RMSIDCUTILS.NetCommander
             StartService(true, ConnectionInfo.DefaultIpAddress, ConnectionInfo.DefaultPort);
         }
 
+        /// <summary>
+        /// Stops the networking services for the configured mode (client/host)
+        /// </summary>
         public void StopService()
         {
             if(_networkServer == null )
@@ -140,6 +161,10 @@ namespace RMSIDCUTILS.NetCommander
             IsRunning = false;
         }
 
+        /// <summary>
+        /// Sends a message to all the connected clients
+        /// </summary>
+        /// <param name="m"></param>
         public void Broadcast(PrimeNetMessage m)
         {
             Debug.Log("Broadcasting message.  Running state? " + IsRunning);
@@ -152,6 +177,11 @@ namespace RMSIDCUTILS.NetCommander
             _networkServer.Broadcast(m);
         }
 
+        /// <summary>
+        /// Send a direct message to a specific client based on it's unique GUID.  The GUID is currently created by the Server
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="message"></param>
         public void Send(Guid id, PrimeNetMessage message)
         {
             if (!IsRunning)
@@ -162,6 +192,11 @@ namespace RMSIDCUTILS.NetCommander
             _networkServer.DirectMessage(id, message);
         }
 
+        /// <summary>
+        /// When a new message is received from the Network Transport, enqueue and Publish to listener on the 
+        /// Network Service
+        /// </summary>
+        /// <param name="message">This a packaged version of a low level net message</param>
         public void ProcessIncommingMessages(PrimeNetMessage message)
         {
             Debug.Log("Enqueuing a new message");
@@ -174,6 +209,10 @@ namespace RMSIDCUTILS.NetCommander
             return _networkServer.ClientList;
         }
 
+        /// <summary>
+        /// Returns the next avaialble item in the queue, uses an underlying ConcurrentQueue
+        /// </summary>
+        /// <returns></returns>
         public PrimeNetMessage Dequeue()
         {
             PrimeNetMessage result = null;
@@ -182,7 +221,7 @@ namespace RMSIDCUTILS.NetCommander
             {
                 if (_mQueue.TryDequeue(out result))
                 {
-                    Debug.Log("Concurrrent Dequeue succeeded - " + result.MessageBody);
+                    Debug.Log(string.Format("Concurrrent Dequeue succeeded - ({0}) ", result.MessageBody));
                 }
                 else
                 {
@@ -193,6 +232,11 @@ namespace RMSIDCUTILS.NetCommander
             return result;
         }
 
+        /// <summary>
+        /// Look into the Queue to see if there's any messages and return a copy of the first item in the queue
+        /// without removing from the queue
+        /// </summary>
+        /// <returns></returns>
         public PrimeNetMessage Peek()
         {
             PrimeNetMessage nextMessage = null;
@@ -219,12 +263,21 @@ namespace RMSIDCUTILS.NetCommander
         #endregion
 
         #region Private Implementation
+        /// <summary>
+        /// This handler is 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         void HandleMessageReceived(object sender, NetworkMessageEvent e)
         {
             Debug.Log("A new network message event is received, add it to the message queue");
             ProcessIncommingMessages(e.Data);
         }
 
+        /// <summary>
+        /// Let the subscribers know that there is a new message only.  Check the queue to get the next message
+        /// </summary>
+        /// <param name="e"></param>
         protected virtual void PublishMessageAvailable(EventArgs e)
         {
             MessageAvailable?.Invoke(this, e);
