@@ -38,6 +38,7 @@ namespace RMSIDCUTILS.NetCommander
         // Remove all items out of the queue
         void Flush();
 
+        // Check this value to see if the network service is running
         bool IsRunning { get; }
     }
 
