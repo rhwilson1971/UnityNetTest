@@ -10,58 +10,33 @@ public class UpdateCanvasElements : MonoBehaviour
     public InputField _MyMessage;
     public PrimeNetService _NetService;
     private bool haveMessage = false;
-
+    static int counter = 0;
     // Start is called before the first frame update
     private void Start()
     {
         // _NetService.MessageAvailable += OnNewMessageAvailable;
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            _DisplayText.text = "starting?";
+        }
     }
 
     // Update is called once per frame
     private void Update()
     {
-
+        if(Application.platform == RuntimePlatform.Android)
+        {
+            _DisplayText.text = "update?";
+        }
+        LookForNewMessages();
     }
+
 
     private void LateUpdate()
     {
-        if (haveMessage)
+        if (Application.platform == RuntimePlatform.Android)
         {
-            var message = _NetService.Dequeue();
-            if (message != null)
-            {
-                _DisplayText.text = message.MessageBody;
-
-                if (message.NetMessage == EPrimeNetMessage.ClientConnected)
-                {
-                    _DisplayText.text = "Process Message - A client has connected";
-
-                    HandleConnectedClient(message);
-                }
-
-                if (message.NetMessage == EPrimeNetMessage.ClientDisconnected)
-                {
-                    _DisplayText.text = "Process Message - A client has disconnected " + message.MessageBody;
-
-                    HandleDisconnectedClient(message);
-                }
-
-                if (message.NetMessage == EPrimeNetMessage.ServerConnected)
-                {
-                    _DisplayText.text = "Server disconnected";
-                    HandleServerConnected(message);
-                }
-
-                if (message.NetMessage == EPrimeNetMessage.ServerListening)
-                {
-                    _DisplayText.text = "Server Listening";
-                    HandleServerListening(message);
-                }
-            }
-            else
-            {
-                haveMessage = false;
-            }
+            _DisplayText.text = "late_update?";
         }
     }
 
@@ -70,7 +45,10 @@ public class UpdateCanvasElements : MonoBehaviour
         Debug.Log("Registering for new messages from the NetworkService");
         _NetService.MessageAvailable += OnNewMessageAvailable;
 
-        ConnectionInfo.GetComputerNetworkAddresses();
+        ConnectionInfo.DisplayComputerNetworkAddresses();
+        var addr = ConnectionInfo.GetLastOperationalNetwork();
+
+        Debug.Log("Gimme da light -> " + addr.ToString());
     }
 
     public void OnNewMessageAvailable(object sender, EventArgs e)
@@ -148,6 +126,8 @@ public class UpdateCanvasElements : MonoBehaviour
 
     public void StartService()
     {
+        // _MyMessage.text = "Starting client first?";
+        _DisplayText.text = "Starting client noew?";
 
         Debug.Log("Starting net services" + _NetService.IsRunning);
          
@@ -156,19 +136,38 @@ public class UpdateCanvasElements : MonoBehaviour
             return;
         }
 
-        Toggle toggle = FindObjectOfType<Toggle>();
-        var ipAddressText = GameObject.Find("IPAddressText").GetComponent<Text>();
-        var portText = GameObject.Find("PortText").GetComponent<Text>();
+        //if (Application.platform == RuntimePlatform.Android)
+        //{
+        //    _DisplayText.text = "Starting andr client?";
+        //    _MyMessage.text = "Starting android client?";
+        //    var address = "192.168.1.6";
 
-        if (!string.IsNullOrEmpty(ipAddressText.text) && !(string.IsNullOrEmpty(portText.text)))
+        //    if (null != address)
+        //    {
+        //        _MyMessage.text = "Starting the service";
+        //        _NetService.StartService(false, address.ToString(), 40930);
+        //    }
+        //    else
+        //    {
+        //        _DisplayText.text = "Didn't Starting andr client?";
+        //        _MyMessage.text = "Didnt starting android client?";
+        //    }
+        //}
+        //else
         {
-            _NetService.StartService(toggle.isOn, ipAddressText.text, int.Parse(portText.text));
-        }
-        else
-        {
-            _NetService.StartService(toggle.isOn, ipAddressText.text, int.Parse(portText.text));
-        }
+            Toggle toggle = FindObjectOfType<Toggle>();
+            var ipAddressText = GameObject.Find("IPAddressText").GetComponent<Text>();
+            var portText = GameObject.Find("PortText").GetComponent<Text>();
 
+            if (!string.IsNullOrEmpty(ipAddressText.text) && !(string.IsNullOrEmpty(portText.text)))
+            {
+                _NetService.StartService(toggle.isOn, ipAddressText.text, int.Parse(portText.text));
+            }
+            else
+            {
+                _NetService.StartService(toggle.isOn, ipAddressText.text, int.Parse(portText.text));
+            }
+        }
     }
 
     public void StopService()
@@ -178,8 +177,8 @@ public class UpdateCanvasElements : MonoBehaviour
             _NetService.StopService();
         }
 
-        _DisplayText.text = "Waiting to connect...";
-        _MyMessage.text = "Waitning for network messages";
+        _DisplayText.text = "Waiting to connect ...";
+        // _MyMessage.text = "Waitning for network messages";
     }
 
     public void ToServer_OnClick()
@@ -219,5 +218,65 @@ public class UpdateCanvasElements : MonoBehaviour
         };
 
         _NetService?.Broadcast(message);
+    }
+
+    public void LookForNewMessages()
+    {
+        // _DisplayText.text = "Are you working at all?";
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            _DisplayText.text = "Getting updates at all?";
+        }
+        else
+        {
+            _DisplayText.text = "Getting updates at all? " + counter++;
+        }
+
+        if (haveMessage)
+        {
+            var message = _NetService.Dequeue();
+            if (message != null)
+            {
+                _DisplayText.text = message.MessageBody;
+
+                if (message.NetMessage == EPrimeNetMessage.ClientConnected)
+                {
+                    _DisplayText.text = "Process Message - A client has connected";
+
+                    HandleConnectedClient(message);
+                }
+
+                if (message.NetMessage == EPrimeNetMessage.ClientDisconnected)
+                {
+                    _DisplayText.text = "Process Message - A client has disconnected " + message.MessageBody;
+
+                    HandleDisconnectedClient(message);
+                }
+
+                if (message.NetMessage == EPrimeNetMessage.ServerConnected)
+                {
+                    _DisplayText.text = "This client has connected to the serverConnected to server";
+                    HandleServerConnected(message);
+                }
+
+                if (message.NetMessage == EPrimeNetMessage.ServerListening)
+                {
+                    _DisplayText.text = "Server Listening";
+                    HandleServerListening(message);
+                }
+            }
+            else
+            {
+                haveMessage = false;
+            }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (Application.platform == RuntimePlatform.Android)
+        {
+            _DisplayText.text = "destroyed?";
+        }
     }
 }

@@ -5,7 +5,6 @@ using System.Net.Sockets;
 using System.Net;
 using System.Threading;
 using System;
-using UnityEngine.UI;
 using System.Xml.Serialization;
 using System.Threading.Tasks;
 using System.Net.NetworkInformation;
@@ -73,6 +72,8 @@ namespace RMSIDCUTILS.NetCommander
             }
         }
         #endregion
+
+        #region INetTransportManager Interface
 
         public List<PrimeNetTransportClient> ClientList
         {
@@ -226,6 +227,7 @@ namespace RMSIDCUTILS.NetCommander
 
         public void StartupClient()
         {
+            StatusMessage("Is the client check working? " + _conn.IsServer );
             if (_conn.IsServer)
             {
                 return;
@@ -313,6 +315,10 @@ namespace RMSIDCUTILS.NetCommander
         //        return stringwriter.ToString();
         //    }
         //}
+
+        #endregion
+
+        #region Private Implementation
 
         public static PrimeNetMessage LoadFromXMLString(string xmlText)
         {
@@ -503,6 +509,7 @@ namespace RMSIDCUTILS.NetCommander
             Task t = endPoint == null ? new Task(() => ConnectToServer(client)) : new Task(() => ConnectToServer(client, endPoint));
             t.Start();
         }
+        #endregion
     }
 
     public enum EPrimeNetMessage
@@ -590,20 +597,52 @@ namespace RMSIDCUTILS.NetCommander
             Protocol = protocol;
         }
 
-        public static void GetComputerNetworkAddresses()
+        public static IPAddress GetLastOperationalNetwork()
+        {
+            IPAddress primaryAddress = null;
+
+            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface netInt in adapters)
+            {
+                if (netInt.OperationalStatus == OperationalStatus.Up)
+                {
+                    IPInterfaceProperties properties = netInt.GetIPProperties();
+
+                    foreach (IPAddressInformation addrInfo in properties.UnicastAddresses)
+                    {
+                        // Ignore loop-back addresses & IPv6 internet protocol family
+                        
+                        if (addrInfo.Address.AddressFamily != AddressFamily.InterNetworkV6 && !IPAddress.IsLoopback(addrInfo.Address))
+                        {
+                            Debug.Log(string.Format("Network Interface: {0}\tAddress: {1}", netInt.Name, addrInfo.Address));
+                            primaryAddress = addrInfo.Address;
+                        }
+                    }
+                }
+            }
+
+            return primaryAddress;
+        }
+
+        public static void DisplayComputerNetworkAddresses()
         {
             NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
             foreach (NetworkInterface netInt in adapters)
             {
-                IPInterfaceProperties properties = netInt.GetIPProperties();
-                foreach (IPAddressInformation addrInfo in properties.UnicastAddresses)
+                if (netInt.OperationalStatus == OperationalStatus.Up)
                 {
-                    // Ignore loop-back addresses & IPv6 internet protocol family
-                    // !IPAddress.IsLoopback(uniCast.Address)
-                    if (addrInfo.Address.AddressFamily != AddressFamily.InterNetworkV6)
+                    IPInterfaceProperties properties = netInt.GetIPProperties();
+
+                    foreach (IPAddressInformation addrInfo in properties.UnicastAddresses)
                     {
-                        Debug.Log(string.Format("Network Interface: {0}", netInt.Name));
-                        Debug.Log(string.Format("\tAddress: {0}", addrInfo.Address));
+                        // Ignore loop-back addresses & IPv6 internet protocol family
+                        // !IPAddress.IsLoopback(uniCast.Address)
+                        if (addrInfo.Address.AddressFamily != AddressFamily.InterNetworkV6)
+                        {
+
+                            Debug.Log(string.Format("Network Interface: {0}", netInt.Name));
+                            Debug.Log(string.Format("\tAddress: {0}", addrInfo.Address));
+                        }
                     }
                 }
             }

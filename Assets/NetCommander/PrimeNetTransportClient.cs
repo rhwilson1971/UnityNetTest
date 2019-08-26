@@ -131,6 +131,7 @@ namespace RMSIDCUTILS.NetCommander
                 _hbTimer.ResetTimer();
             }
 
+
             Debug.Log("Beginning to receive socket data");
             int length = _stream.EndRead(ar);
             if (length <= 0)
@@ -237,6 +238,18 @@ namespace RMSIDCUTILS.NetCommander
         public void Read()
         {
             IsActive = true;
+
+
+            PrimeNetMessage
+                 message = new PrimeNetMessage
+                 {
+                     MessageBody = ClientID.ToString(),
+                     NetMessage = _connectInfo.IsServer ? EPrimeNetMessage.ClientConnected : EPrimeNetMessage.ServerConnected,
+                     SenderIP = _connectInfo.HosHostAddress.ToString()
+                 };
+
+            PublishDataReceived(new DataReceivedEvent(message.Serialize()));
+
             Stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
         }
 
