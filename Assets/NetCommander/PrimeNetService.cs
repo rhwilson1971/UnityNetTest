@@ -151,7 +151,7 @@ namespace RMSIDCUTILS.NetCommander
             Debug.Log("Stopping the netserverce");
             if (!IsRunning)
             {
-                Debug.Log("netserverce reports its not running");
+                Debug.Log("net service reports its not running");
                 return;
             }
 

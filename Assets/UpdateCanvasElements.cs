@@ -2,6 +2,7 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class UpdateCanvasElements : MonoBehaviour
 {
@@ -11,6 +12,12 @@ public class UpdateCanvasElements : MonoBehaviour
     public PrimeNetService _NetService;
     private bool haveMessage = false;
     static int counter = 0;
+
+    List<Button> _connectionList = new List<Button>();
+
+
+
+
     // Start is called before the first frame update
     private void Start()
     {
@@ -19,6 +26,44 @@ public class UpdateCanvasElements : MonoBehaviour
         {
             _DisplayText.text = "starting?";
         }
+
+        var scrollViewContent = GameObject.Find("ConnectionListView/Viewport/Content");
+
+        var buttons = FindObjectsOfType<Button>();
+
+        Debug.Log("Buttons " + buttons.Length);
+        Debug.Log(" happy " + scrollViewContent.GetComponents(typeof(Button)).Length);
+
+        foreach(var btn in buttons)
+        {
+            Debug.Log(btn.name);
+
+            if(btn.name.StartsWith("Net"))
+            {
+                _connectionList.Add(btn);
+            }
+
+            Debug.Log(_connectionList.Count);
+        }
+
+        // Debug.Log("What do wehave now?    [" + scrollViewContent + "]");
+
+        // Debug.Log(scrollViewContent.gameObject);
+        //var buttons =
+        //scrollViewContent.GetComponents(
+
+        //Debug.Log("Got some buttons?    + [" + buttons + "]");
+        //var viewPort = scrollViewContent.gameObject.GetComponent("Viewport");
+
+        //var buttons = scrollViewContent.gameObject.GetComponents<Button>();
+
+        //if (buttons != null)
+        //    Debug.Log("How many buttons - " + buttons.Length);
+
+        //Debug.Log("We have content " + scrollViewContent);
+        //Debug.Log("Viewport " + viewPort);
+        //Debug.Log("We have viewport " + buttons);
+
     }
 
     // Update is called once per frame
@@ -30,7 +75,6 @@ public class UpdateCanvasElements : MonoBehaviour
         }
         LookForNewMessages();
     }
-
 
     private void LateUpdate()
     {
@@ -58,11 +102,20 @@ public class UpdateCanvasElements : MonoBehaviour
         haveMessage = true;
     }
 
-    private void HandleConnectedClient(PrimeNetMessage message)
+    private void HandleClientConnected(PrimeNetMessage message)
     {
         if (_NetService._IsServer)
         {
             _ConnectedClients.options.Add(new Dropdown.OptionData(message.MessageBody));
+
+            // adding a new client
+
+            var id = int.Parse(message.MessageBody);
+
+            var client = 
+                _NetService.GetClients().Find(a => a.ClientNumber == id);
+
+            Debug.Log("Found a client " + client);
         }
         else
         {
@@ -70,7 +123,7 @@ public class UpdateCanvasElements : MonoBehaviour
         }
     }
 
-    private void HandleDisconnectedClient(PrimeNetMessage message)
+    private void HandleClientDisconnected(PrimeNetMessage message)
     {
         Debug.Log("Disconn client");
         Debug.Log(message.SenderIP);
@@ -225,16 +278,17 @@ public class UpdateCanvasElements : MonoBehaviour
         // _DisplayText.text = "Are you working at all?";
         if (Application.platform == RuntimePlatform.Android)
         {
-            _DisplayText.text = "Getting updates at all?";
+            // _DisplayText.text = "Getting updates at all?";
         }
         else
         {
-            _DisplayText.text = "Getting updates at all? " + counter++;
+            // _DisplayText.text = "Getting updates at all? " + counter++;
         }
 
         if (haveMessage)
         {
             var message = _NetService.Dequeue();
+
             if (message != null)
             {
                 _DisplayText.text = message.MessageBody;
@@ -243,14 +297,14 @@ public class UpdateCanvasElements : MonoBehaviour
                 {
                     _DisplayText.text = "Process Message - A client has connected";
 
-                    HandleConnectedClient(message);
+                    HandleClientConnected(message);
                 }
 
                 if (message.NetMessage == EPrimeNetMessage.ClientDisconnected)
                 {
                     _DisplayText.text = "Process Message - A client has disconnected " + message.MessageBody;
 
-                    HandleDisconnectedClient(message);
+                    HandleClientDisconnected(message);
                 }
 
                 if (message.NetMessage == EPrimeNetMessage.ServerConnected)
@@ -278,5 +332,18 @@ public class UpdateCanvasElements : MonoBehaviour
         {
             _DisplayText.text = "destroyed?";
         }
+    }
+
+    private void UpdateGui()
+    {
+        
+    }
+
+    private void AddClient()
+    {
+        // _connectionLis
+
+        // ID:1, Type:Server, State:Connected, LastMessage:1
+
     }
 }

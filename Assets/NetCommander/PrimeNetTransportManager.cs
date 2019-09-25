@@ -129,12 +129,14 @@ namespace RMSIDCUTILS.NetCommander
             Debug.Log("Client connecting to this server: " + _listener);
             if (_listener == null)
                 return;
-
             Debug.Log("The listener is still active");
-
             Socket socket = _listener.EndAcceptSocket(ar);
-
             Debug.Log("what is state of socket? " + socket);
+
+            var addressBytes = _conn.HosHostAddress.GetAddressBytes();
+
+            Debug.Log("Addr1 " + _conn.HosHostAddress.Address);
+            Debug.Log("Addr2 " + _conn.HosHostAddress.GetAddressBytes().ToString());
 
             PrimeNetTransportClient nc = new PrimeNetTransportClient(socket, true, _conn)
             {
@@ -647,5 +649,27 @@ namespace RMSIDCUTILS.NetCommander
                 }
             }
         }
+    }
+
+
+    public static class Utils
+    {
+        public static string IPv4Address(this IPAddress address)
+        {
+            string myAddress = "127.0.0.1";
+
+            if(address != null && address.AddressFamily == AddressFamily.InterNetwork)
+            {
+                var byteAddress = address.GetAddressBytes();
+                myAddress = string.Format("{0}.{1}.{2}.{3}", byteAddress[0], byteAddress[1], byteAddress[2], byteAddress[3]);
+            }
+            return myAddress;
+        }
+
+        //public static long IPv4AddressLong(this IPAddress address)
+        //{
+        //    return (long)(uint)IPAddress.NetworkToHostOrder(
+        //                 (int)IPAddress.Parse(address).Address);
+        //}
     }
 }

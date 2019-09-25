@@ -12,6 +12,10 @@ namespace RMSIDCUTILS.NetCommander
         bool Poll();
         void Disconnect();
         void StartHeartbeatTimer();
+        string HostName { get;  }
+        string IPAddress { get;  }
+        bool Connected { get;  }
+        PrimeNetMessage GetLastMessage();
     }
 
     public class PrimeNetTransportClient : INetTransportClient
@@ -30,6 +34,7 @@ namespace RMSIDCUTILS.NetCommander
         }
         private NetworkStream _stream;
         private readonly ManualResetEvent _connectionPollEvent = new ManualResetEvent(false);
+        private DataReceivedEvent _lastMessage;
         #endregion
 
         #region Public Properties
@@ -39,6 +44,18 @@ namespace RMSIDCUTILS.NetCommander
         public Socket GetSocket() { return _socket; }
         public EndPoint RemoteEndPoint;
         public bool IsActive { get; set; }
+        public bool Connected { get; private set; }
+        public string IPAddress { get; private set; }
+        public string HostName
+        {
+
+            get
+            {
+
+                
+                return "me";
+            }
+        }
         #endregion
         
         #region Events
@@ -290,6 +307,9 @@ namespace RMSIDCUTILS.NetCommander
             // Make a temporary copy of the event to avoid possibility of
             // a race condition if the last subscriber unsubscribes
             // immediately after the null check and before the event is raised.
+
+            _lastMessage = e;
+
             DataReceived?.Invoke(this, e);
         }
 
@@ -426,6 +446,12 @@ namespace RMSIDCUTILS.NetCommander
         {
             _hbTimer = new PrimeNetHeartbeatTimer(this, 3, 3000);
             _hbTimer.Start();
+        }
+
+        public PrimeNetMessage GetLastMessage()
+        {
+            return 
+                PrimeNetMessage.Deserialize(_lastMessage.Data);
         }
         #endregion
     }
