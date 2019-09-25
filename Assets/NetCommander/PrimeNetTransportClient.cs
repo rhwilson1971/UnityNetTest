@@ -16,6 +16,7 @@ namespace RMSIDCUTILS.NetCommander
         string IPAddress { get;  }
         bool Connected { get;  }
         PrimeNetMessage GetLastMessage();
+        string GetRemoteIPAddress();
     }
 
     public class PrimeNetTransportClient : INetTransportClient
@@ -56,6 +57,7 @@ namespace RMSIDCUTILS.NetCommander
                 return "me";
             }
         }
+        
         #endregion
         
         #region Events
@@ -452,6 +454,15 @@ namespace RMSIDCUTILS.NetCommander
         {
             return 
                 PrimeNetMessage.Deserialize(_lastMessage.Data);
+        }
+
+
+        public string GetRemoteIPAddress()
+        {
+
+            // Console.WriteLine ("I am connected to " + IPAddress.Parse (((IPEndPoint)s.RemoteEndPoint).Address.ToString ()) + "on port number " + ((IPEndPoint)s.RemoteEndPoint).Port.ToString ());
+
+            return ((IPEndPoint)_socket.LocalEndPoint).Address.ToString();
         }
         #endregion
     }

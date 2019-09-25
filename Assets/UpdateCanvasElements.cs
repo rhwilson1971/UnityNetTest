@@ -14,7 +14,7 @@ public class UpdateCanvasElements : MonoBehaviour
     static int counter = 0;
 
     List<Button> _connectionList = new List<Button>();
-
+    Dictionary<int, Button> _guiConnectedClients = new Dictionary<int, Button>();
 
 
 
@@ -109,13 +109,34 @@ public class UpdateCanvasElements : MonoBehaviour
             _ConnectedClients.options.Add(new Dropdown.OptionData(message.MessageBody));
 
             // adding a new client
-
             var id = int.Parse(message.MessageBody);
-
             var client = 
                 _NetService.GetClients().Find(a => a.ClientNumber == id);
 
+            foreach(var item in _connectionList)
+            {
+
+            }
+
+
             Debug.Log("Found a client " + client);
+            Debug.Log("IP " + client.GetRemoteIPAddress());
+
+
+            if (!_guiConnectedClients.ContainsKey(client.ClientNumber))
+            {
+                var name = "NetButtonClient" + client.ClientNumber;
+                var button = _connectionList.Find(b => b.name == name);
+
+                if (button != null)
+                {
+                    _guiConnectedClients.Add(client.ClientNumber, button);
+                    var theText = button.GetComponentInChildren<Text>();
+                    theText.text = string.Format("Client - {0}", client.GetRemoteIPAddress());
+
+                    button.GetComponent<Image>().color = new Color(0.3f, 0.4f, 0.6f, 0.3f);
+                }
+            }
         }
         else
         {
@@ -175,6 +196,16 @@ public class UpdateCanvasElements : MonoBehaviour
         {
             button.enabled = false;
         }
+
+        var btnServer =
+            _connectionList.Find(b => b.name.Contains("Server"));
+
+        Debug.Log("is there btn " + btnServer);
+
+        var inputText =
+            btnServer.GetComponentInChildren<Text>();
+
+        inputText.text = message.SenderIP;
     }
 
     public void StartService()
