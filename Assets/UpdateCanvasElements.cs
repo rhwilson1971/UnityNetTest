@@ -337,24 +337,30 @@ public class UpdateCanvasElements : MonoBehaviour
     {
         Color currentColor = Color.red;
 
+        var status = false;
+
         switch (message.NetMessage)
         {
             case EPrimeNetMessage.ClientConnected:
                 currentColor = Color.green;
+                status = true;
                 break;
 
             case EPrimeNetMessage.ClientDisconnected:
                 currentColor = Color.green;
+                status = true;
                 break;
 
             case EPrimeNetMessage.ServerConnected:
                 currentColor = Color.green;
                 _guiConnectedClients[0].GetComponent<Image>().color = currentColor;
+                status = true;
                 break;
 
             case EPrimeNetMessage.ServerDisconnected:
                 currentColor = Color.red;
                 _guiConnectedClients[0].GetComponent<Image>().color = currentColor;
+                status = true;
                 break;
 
             case EPrimeNetMessage.ServerListening:
@@ -362,8 +368,11 @@ public class UpdateCanvasElements : MonoBehaviour
                 break;
         }
 
-        if ((message.NetMessage & EPrimeNetMessage.ClientConnected | EPrimeNetMessage.ClientDisconnected | EPrimeNetMessage.ServerConnected | EPrimeNetMessage.ServerDisconnected) != 0)
+        if (status)
         {
+
+            Debug.Log(message.NetMessage);
+
             var id = int.Parse(message.MessageBody); // message contains the client number
             var client = _NetService.GetClients().Find(a => a.ClientNumber == id);
 
