@@ -651,7 +651,6 @@ namespace RMSIDCUTILS.NetCommander
         }
     }
 
-
     public static class Utils
     {
         public static string IPv4Address(this IPAddress address)

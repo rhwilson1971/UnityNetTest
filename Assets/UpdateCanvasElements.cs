@@ -1,8 +1,8 @@
 ﻿using RMSIDCUTILS.NetCommander;
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System.Collections.Generic;
 
 public class UpdateCanvasElements : MonoBehaviour
 {
@@ -11,12 +11,12 @@ public class UpdateCanvasElements : MonoBehaviour
     public InputField _MyMessage;
     public PrimeNetService _NetService;
     private bool haveMessage = false;
-    static int counter = 0;
-
-    List<Button> _connectionList = new List<Button>();
-    Dictionary<int, Button> _guiConnectedClients = new Dictionary<int, Button>();
-
-
+    private static int counter = 0;
+    private List<Button> _connectionList = new List<Button>();
+    private Dictionary<int, Button> _guiConnectedClients = new Dictionary<int, Button>();
+    private Color ColorConnect = new Color(0.082f, 0.651f, 0.267f, 1.0f);
+    private Color ColorUnkown = new Color(1.0f, 0.851f, 0f, 1.0f);
+    private Color ColorDisconnect = new Color(1.0f, 0.0f, 0f, 1.0f);
 
     // Start is called before the first frame update
     private void Start()
@@ -26,50 +26,14 @@ public class UpdateCanvasElements : MonoBehaviour
         {
             _DisplayText.text = "starting?";
         }
-
-        var scrollViewContent = GameObject.Find("ConnectionListView/Viewport/Content");
-
-        var buttons = FindObjectsOfType<Button>();
-
-        Debug.Log("Buttons " + buttons.Length);
-        Debug.Log(" happy " + scrollViewContent.GetComponents(typeof(Button)).Length);
-
-        foreach(var btn in buttons)
-        {
-            Debug.Log(btn.name);
-
-            if(btn.name.StartsWith("Net"))
-            {
-                _connectionList.Add(btn);
-            }
-
-            Debug.Log(_connectionList.Count);
-        }
-
-        // Debug.Log("What do wehave now?    [" + scrollViewContent + "]");
-
-        // Debug.Log(scrollViewContent.gameObject);
-        //var buttons =
-        //scrollViewContent.GetComponents(
-
-        //Debug.Log("Got some buttons?    + [" + buttons + "]");
-        //var viewPort = scrollViewContent.gameObject.GetComponent("Viewport");
-
-        //var buttons = scrollViewContent.gameObject.GetComponents<Button>();
-
-        //if (buttons != null)
-        //    Debug.Log("How many buttons - " + buttons.Length);
-
-        //Debug.Log("We have content " + scrollViewContent);
-        //Debug.Log("Viewport " + viewPort);
-        //Debug.Log("We have viewport " + buttons);
-
+        
+        InitClients();
     }
 
     // Update is called once per frame
     private void Update()
     {
-        if(Application.platform == RuntimePlatform.Android)
+        if (Application.platform == RuntimePlatform.Android)
         {
             _DisplayText.text = "update?";
         }
@@ -104,44 +68,40 @@ public class UpdateCanvasElements : MonoBehaviour
 
     private void HandleClientConnected(PrimeNetMessage message)
     {
-        if (_NetService._IsServer)
-        {
-            _ConnectedClients.options.Add(new Dropdown.OptionData(message.MessageBody));
+        //if (_NetService._IsServer)
+        //{
+        //    _ConnectedClients.options.Add(new Dropdown.OptionData(message.MessageBody));
 
-            // adding a new client
-            var id = int.Parse(message.MessageBody);
-            var client = 
-                _NetService.GetClients().Find(a => a.ClientNumber == id);
+        //    // adding a new client
+        //    var id = int.Parse(message.MessageBody);
+        //    var client =
+        //        _NetService.GetClients().Find(a => a.ClientNumber == id);
 
-            foreach(var item in _connectionList)
-            {
-
-            }
+        //    Debug.Log("Found a client " + client);
+        //    Debug.Log("IP " + client.GetRemoteIPAddress());
 
 
-            Debug.Log("Found a client " + client);
-            Debug.Log("IP " + client.GetRemoteIPAddress());
+        //    if (!_guiConnectedClients.ContainsKey(client.ClientNumber))
+        //    {
+        //        var name = "NetButtonClient" + client.ClientNumber;
+        //        var button = _connectionList.Find(b => b.name == name);
 
+        //        if (button != null)
+        //        {
+        //            _guiConnectedClients.Add(client.ClientNumber, button);
+        //            var theText = button.GetComponentInChildren<Text>();
+        //            theText.text = string.Format("Client - {0}", client.GetRemoteIPAddress());
 
-            if (!_guiConnectedClients.ContainsKey(client.ClientNumber))
-            {
-                var name = "NetButtonClient" + client.ClientNumber;
-                var button = _connectionList.Find(b => b.name == name);
+        //            button.GetComponent<Image>().color = ColorConnect;
+        //        }
+        //    }
+        //}
+        //else
+        //{
+        //    _ConnectedClients.options.Add(new Dropdown.OptionData("Connected to remote server at " + _NetService._HostNameOrIP));
+        //}
 
-                if (button != null)
-                {
-                    _guiConnectedClients.Add(client.ClientNumber, button);
-                    var theText = button.GetComponentInChildren<Text>();
-                    theText.text = string.Format("Client - {0}", client.GetRemoteIPAddress());
-
-                    button.GetComponent<Image>().color = new Color(0.3f, 0.4f, 0.6f, 0.3f);
-                }
-            }
-        }
-        else
-        {
-            _ConnectedClients.options.Add(new Dropdown.OptionData("Connected to remote server at " + _NetService._HostNameOrIP));
-        }
+        UpdateGui(message);
     }
 
     private void HandleClientDisconnected(PrimeNetMessage message)
@@ -150,14 +110,16 @@ public class UpdateCanvasElements : MonoBehaviour
         Debug.Log(message.SenderIP);
         Debug.Log(message.MessageBody);
 
-        if (_NetService._IsServer)
-        {
-            _ConnectedClients.options.RemoveAll(item => item.text == message.MessageBody);
-        }
-        else
-        {
-            _ConnectedClients.options.Add(new Dropdown.OptionData("Disconnected from remote server at " + _NetService._HostNameOrIP));
-        }
+        //if (_NetService._IsServer)
+        //{
+        //    _ConnectedClients.options.RemoveAll(item => item.text == message.MessageBody);
+        //}
+        //else
+        //{
+        //    _ConnectedClients.options.Add(new Dropdown.OptionData("Disconnected from remote server at " + _NetService._HostNameOrIP));
+        //}
+
+        UpdateGui(message);
     }
 
     private void HandleServerDisconnected(PrimeNetMessage message)
@@ -167,6 +129,8 @@ public class UpdateCanvasElements : MonoBehaviour
         Debug.Log(message.MessageBody);
 
         _DisplayText.text = "Server disconnected, retrying....";
+
+        UpdateGui(message);
     }
 
     private void HandleServerConnected(PrimeNetMessage message)
@@ -183,6 +147,8 @@ public class UpdateCanvasElements : MonoBehaviour
             button.enabled = false;
         }
 
+
+        UpdateGui(message);
     }
 
     private void HandleServerListening(PrimeNetMessage message)
@@ -197,15 +163,17 @@ public class UpdateCanvasElements : MonoBehaviour
             button.enabled = false;
         }
 
-        var btnServer =
-            _connectionList.Find(b => b.name.Contains("Server"));
+        //var btnServer =
+        //    _connectionList.Find(b => b.name.Contains("Server"));
 
-        Debug.Log("is there btn " + btnServer);
+        //Debug.Log("is there btn " + btnServer);
 
-        var inputText =
-            btnServer.GetComponentInChildren<Text>();
+        //var inputText =
+        //    btnServer.GetComponentInChildren<Text>();
 
-        inputText.text = message.SenderIP;
+        //inputText.text = message.SenderIP;
+
+        UpdateGui(message);
     }
 
     public void StartService()
@@ -214,7 +182,7 @@ public class UpdateCanvasElements : MonoBehaviour
         _DisplayText.text = "Starting client noew?";
 
         Debug.Log("Starting net services" + _NetService.IsRunning);
-         
+
         if (_NetService.IsRunning)
         {
             return;
@@ -365,16 +333,120 @@ public class UpdateCanvasElements : MonoBehaviour
         }
     }
 
-    private void UpdateGui()
+    private void UpdateGui(PrimeNetMessage message)
     {
-        
+        Color currentColor = Color.red;
+
+        switch (message.NetMessage)
+        {
+            case EPrimeNetMessage.ClientConnected:
+                currentColor = Color.green;
+                break;
+
+            case EPrimeNetMessage.ClientDisconnected:
+                currentColor = Color.green;
+                break;
+
+            case EPrimeNetMessage.ServerConnected:
+                currentColor = Color.green;
+                _guiConnectedClients[0].GetComponent<Image>().color = currentColor;
+                break;
+
+            case EPrimeNetMessage.ServerDisconnected:
+                currentColor = Color.red;
+                _guiConnectedClients[0].GetComponent<Image>().color = currentColor;
+                break;
+
+            case EPrimeNetMessage.ServerListening:
+                currentColor = Color.green;
+                break;
+        }
+
+        if ((message.NetMessage & EPrimeNetMessage.ClientConnected | EPrimeNetMessage.ClientDisconnected | EPrimeNetMessage.ServerConnected | EPrimeNetMessage.ServerDisconnected) != 0)
+        {
+            var id = int.Parse(message.MessageBody); // message contains the client number
+            var client = _NetService.GetClients().Find(a => a.ClientNumber == id);
+
+            if (_NetService._IsServer)
+            {
+                _ConnectedClients.options.Add(new Dropdown.OptionData(message.MessageBody));
+
+                Debug.Log("Found a client " + client);
+                Debug.Log("IP " + client.GetRemoteIPAddress());
+
+                if (!_guiConnectedClients.ContainsKey(client.ClientNumber))
+                {
+                    var name = "NetButtonClient" + client.ClientNumber;
+                    var button = _connectionList.Find(b => b.name == name);
+
+                    if (button != null)
+                    {
+                        _guiConnectedClients.Add(client.ClientNumber, button);
+                        var theText = button.GetComponentInChildren<Text>();
+                        theText.text = string.Format("Client - {0}", client.GetRemoteIPAddress());
+
+                        button.GetComponent<Image>().color = currentColor;
+                    }
+                }
+            }
+            else // if client
+            {
+                _ConnectedClients.options.Add(new Dropdown.OptionData("Connected to remote server at " + _NetService._HostNameOrIP));
+
+                switch(message.NetMessage)
+                {
+                    case EPrimeNetMessage.ServerConnected:
+                        {
+                            var serverButton = _guiConnectedClients[0];
+
+                            serverButton.GetComponent<Image>().color = Color.green;
+                            serverButton.GetComponentInChildren<Text>().text = "Server: " + message.SenderIP;
+                        
+                        }
+                        break;
+
+                    case EPrimeNetMessage.ServerDisconnected:
+                        {
+                            var serverButton = _guiConnectedClients[0];
+
+                            serverButton.GetComponent<Image>().color = Color.red;
+                            serverButton.GetComponentInChildren<Text>().text = "Server: " + message.SenderIP;
+                        }
+                        break;
+                }
+            }
+        }
     }
 
-    private void AddClient()
+    private void InitClients()
     {
-        // _connectionLis
+        var scrollViewContent = GameObject.Find("ConnectionListView/Viewport/Content");
+        var buttons = FindObjectsOfType<Button>();
 
-        // ID:1, Type:Server, State:Connected, LastMessage:1
+        foreach (var btn in buttons)
+        {
+            Debug.Log(btn.name);
+            if (!btn.name.StartsWith("Net"))
+            {
+                continue;
+            }
 
+            var buttonText = btn.GetComponentInChildren<Text>();
+            btn.GetComponent<Image>().color = Color.red;
+
+            if (btn.name.Contains("Server"))
+            {
+                buttonText.text = "Server";
+                _guiConnectedClients.Add(0, btn);
+            }
+            else
+            {
+                buttonText.text = "No Client";
+            }
+            _connectionList.Add(btn);
+
+
+            Debug.Log(_connectionList.Count);
+        }
     }
 }
