@@ -18,6 +18,9 @@ public class UpdateCanvasElements : MonoBehaviour
     private Color ColorUnkown = new Color(1.0f, 0.851f, 0f, 1.0f);
     private Color ColorDisconnect = new Color(1.0f, 0.0f, 0f, 1.0f);
 
+
+    private readonly int ServerBtnPosIndex = 0;
+
     // Start is called before the first frame update
     private void Start()
     {
@@ -353,13 +356,13 @@ public class UpdateCanvasElements : MonoBehaviour
 
             case EPrimeNetMessage.ServerConnected:
                 currentColor = Color.green;
-                _guiConnectedClients[0].GetComponent<Image>().color = currentColor;
+                _guiConnectedClients[ServerBtnPosIndex].GetComponent<Image>().color = currentColor;
                 status = true;
                 break;
 
             case EPrimeNetMessage.ServerDisconnected:
                 currentColor = Color.red;
-                _guiConnectedClients[0].GetComponent<Image>().color = currentColor;
+                _guiConnectedClients[ServerBtnPosIndex].GetComponent<Image>().color = currentColor;
                 status = true;
                 break;
 
@@ -446,14 +449,13 @@ public class UpdateCanvasElements : MonoBehaviour
             if (btn.name.Contains("Server"))
             {
                 buttonText.text = "Server";
-                _guiConnectedClients.Add(0, btn);
+                _guiConnectedClients.Add(ServerBtnPosIndex, btn);
             }
             else
             {
                 buttonText.text = "No Client";
             }
             _connectionList.Add(btn);
-
 
             Debug.Log(_connectionList.Count);
         }
