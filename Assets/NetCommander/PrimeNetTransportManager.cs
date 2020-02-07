@@ -1,14 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
 using System;
-using UnityEngine.UI;
 using System.Xml.Serialization;
 using System.Threading.Tasks;
-using System.Net.NetworkInformation;
 
 namespace RMSIDCUTILS.NetCommander
 {
@@ -123,6 +120,10 @@ namespace RMSIDCUTILS.NetCommander
             }
         }
 
+        /// <summary>
+        /// Asyc method that is called whenever the listener 
+        /// </summary>
+        /// <param name="ar"></param>
         public void OnServerSocketConnect(IAsyncResult ar)
         {
             Debug.Log("Client connecting to this server: " + _listener);
@@ -130,15 +131,16 @@ namespace RMSIDCUTILS.NetCommander
                 return;
 
             Debug.Log("The listener is still active");
-
             Socket socket = _listener.EndAcceptSocket(ar);
-
             Debug.Log("what is state of socket? " + socket);
 
             PrimeNetTransportClient nc = new PrimeNetTransportClient(socket, true, _conn)
             {
                 ClientNumber = _clientList.Count + 1,
-                RemoteEndPoint = new IPEndPoint(_conn.HosHostAddress.Address, (int)_conn.Port)
+                
+                RemoteEndPoint = new IPEndPoint(
+                    PrimeNetUtils.StringIPToLong(_conn.HosHostAddress.ToString()),                     
+                    (int)_conn.Port)
             };
 
             _clientList.Add(nc);
@@ -253,7 +255,7 @@ namespace RMSIDCUTILS.NetCommander
             StatusMessage("Starting up the network client");
             Debug.Log("Startup client");
             
-            IPEndPoint localEndPoint = new IPEndPoint(_conn.HosHostAddress.Address, (int)_conn.Port);
+            IPEndPoint localEndPoint = new IPEndPoint(PrimeNetUtils.StringIPToLong(_conn.HosHostAddress.ToString()), (int)_conn.Port);
             Socket sender = new Socket(_conn.HosHostAddress.AddressFamily,SocketType.Stream, ProtocolType.Tcp);
 
             PrimeNetTransportClient client = new PrimeNetTransportClient(sender, false, _conn)
@@ -588,25 +590,6 @@ namespace RMSIDCUTILS.NetCommander
             }
 
             Protocol = protocol;
-        }
-
-        public static void GetComputerNetworkAddresses()
-        {
-            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
-            foreach (NetworkInterface netInt in adapters)
-            {
-                IPInterfaceProperties properties = netInt.GetIPProperties();
-                foreach (IPAddressInformation addrInfo in properties.UnicastAddresses)
-                {
-                    // Ignore loop-back addresses & IPv6 internet protocol family
-                    // !IPAddress.IsLoopback(uniCast.Address)
-                    if (addrInfo.Address.AddressFamily != AddressFamily.InterNetworkV6)
-                    {
-                        Debug.Log(string.Format("Network Interface: {0}", netInt.Name));
-                        Debug.Log(string.Format("\tAddress: {0}", addrInfo.Address));
-                    }
-                }
-            }
         }
     }
 }

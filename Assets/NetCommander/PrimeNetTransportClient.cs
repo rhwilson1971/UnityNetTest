@@ -40,10 +40,12 @@ namespace RMSIDCUTILS.NetCommander
         public EndPoint RemoteEndPoint;
         public bool IsActive { get; set; }
         #endregion
+        
+        #region Events
+        public event EventHandler<DataReceivedEvent> DataReceived;
+        #endregion
 
         #region Constructors
-        public event EventHandler<DataReceivedEvent> DataReceived;
-
         public PrimeNetTransportClient()
         {
             ClientID = Guid.NewGuid();
@@ -409,7 +411,7 @@ namespace RMSIDCUTILS.NetCommander
 
         public void StartHeartbeatTimer()
         {
-            _hbTimer = new PrimeNetHeartbeatTimer(this, 3);
+            _hbTimer = new PrimeNetHeartbeatTimer(this, 3, 3000);
             _hbTimer.Start();
         }
         #endregion
