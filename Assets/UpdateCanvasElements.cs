@@ -70,7 +70,7 @@ public class UpdateCanvasElements : MonoBehaviour
         Debug.Log("Registering for new messages from the NetworkService");
         _NetService.MessageAvailable += OnNewMessageAvailable;
 
-        ConnectionInfo.GetComputerNetworkAddresses();
+        PrimeNetUtils.GetComputerNetworkAddresses();
     }
 
     public void OnNewMessageAvailable(object sender, EventArgs e)
