@@ -12,6 +12,11 @@ namespace RMSIDCUTILS.NetCommander
         bool Poll();
         void Disconnect();
         void StartHeartbeatTimer();
+        string HostName { get;  }
+        string IPAddress { get;  }
+        bool Connected { get;  }
+        PrimeNetMessage GetLastMessage();
+        string GetRemoteIPAddress();
     }
 
     public class PrimeNetTransportClient : INetTransportClient
@@ -30,6 +35,7 @@ namespace RMSIDCUTILS.NetCommander
         }
         private NetworkStream _stream;
         private readonly ManualResetEvent _connectionPollEvent = new ManualResetEvent(false);
+        private DataReceivedEvent _lastMessage;
         #endregion
 
         #region Public Properties
@@ -39,6 +45,19 @@ namespace RMSIDCUTILS.NetCommander
         public Socket GetSocket() { return _socket; }
         public EndPoint RemoteEndPoint;
         public bool IsActive { get; set; }
+        public bool Connected { get; private set; }
+        public string IPAddress { get; private set; }
+        public string HostName
+        {
+
+            get
+            {
+
+                
+                return "me";
+            }
+        }
+        
         #endregion
         
         #region Events
@@ -130,6 +149,7 @@ namespace RMSIDCUTILS.NetCommander
             {
                 _hbTimer.ResetTimer();
             }
+
 
             Debug.Log("Beginning to receive socket data");
             int length = _stream.EndRead(ar);
@@ -237,6 +257,18 @@ namespace RMSIDCUTILS.NetCommander
         public void Read()
         {
             IsActive = true;
+
+
+            PrimeNetMessage
+                 message = new PrimeNetMessage
+                 {
+                     MessageBody = ClientID.ToString(),
+                     NetMessage = _connectInfo.IsServer ? EPrimeNetMessage.ClientConnected : EPrimeNetMessage.ServerConnected,
+                     SenderIP = _connectInfo.HosHostAddress.ToString()
+                 };
+
+            PublishDataReceived(new DataReceivedEvent(message.Serialize()));
+
             Stream.BeginRead(buffer, 0, buffer.Length, OnRead, null);
         }
 
@@ -277,6 +309,9 @@ namespace RMSIDCUTILS.NetCommander
             // Make a temporary copy of the event to avoid possibility of
             // a race condition if the last subscriber unsubscribes
             // immediately after the null check and before the event is raised.
+
+            _lastMessage = e;
+
             DataReceived?.Invoke(this, e);
         }
 
@@ -413,6 +448,21 @@ namespace RMSIDCUTILS.NetCommander
         {
             _hbTimer = new PrimeNetHeartbeatTimer(this, 3, 3000);
             _hbTimer.Start();
+        }
+
+        public PrimeNetMessage GetLastMessage()
+        {
+            return 
+                PrimeNetMessage.Deserialize(_lastMessage.Data);
+        }
+
+
+        public string GetRemoteIPAddress()
+        {
+
+            // Console.WriteLine ("I am connected to " + IPAddress.Parse (((IPEndPoint)s.RemoteEndPoint).Address.ToString ()) + "on port number " + ((IPEndPoint)s.RemoteEndPoint).Port.ToString ());
+
+            return ((IPEndPoint)_socket.LocalEndPoint).Address.ToString();
         }
         #endregion
     }

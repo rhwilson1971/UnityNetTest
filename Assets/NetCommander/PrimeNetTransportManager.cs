@@ -71,6 +71,8 @@ namespace RMSIDCUTILS.NetCommander
         }
         #endregion
 
+        #region INetTransportManager Interface
+
         public List<PrimeNetTransportClient> ClientList
         {
             get { return _clientList;  }
@@ -129,10 +131,14 @@ namespace RMSIDCUTILS.NetCommander
             Debug.Log("Client connecting to this server: " + _listener);
             if (_listener == null)
                 return;
-
             Debug.Log("The listener is still active");
             Socket socket = _listener.EndAcceptSocket(ar);
             Debug.Log("what is state of socket? " + socket);
+
+            var addressBytes = _conn.HosHostAddress.GetAddressBytes();
+
+            Debug.Log("Addr1 " + _conn.HosHostAddress.Address);
+            Debug.Log("Addr2 " + _conn.HosHostAddress.GetAddressBytes().ToString());
 
             PrimeNetTransportClient nc = new PrimeNetTransportClient(socket, true, _conn)
             {
@@ -228,6 +234,7 @@ namespace RMSIDCUTILS.NetCommander
 
         public void StartupClient()
         {
+            StatusMessage("Is the client check working? " + _conn.IsServer );
             if (_conn.IsServer)
             {
                 return;
@@ -315,6 +322,10 @@ namespace RMSIDCUTILS.NetCommander
         //        return stringwriter.ToString();
         //    }
         //}
+
+        #endregion
+
+        #region Private Implementation
 
         public static PrimeNetMessage LoadFromXMLString(string xmlText)
         {
@@ -505,6 +516,7 @@ namespace RMSIDCUTILS.NetCommander
             Task t = endPoint == null ? new Task(() => ConnectToServer(client)) : new Task(() => ConnectToServer(client, endPoint));
             t.Start();
         }
+        #endregion
     }
 
     public enum EPrimeNetMessage
@@ -591,5 +603,77 @@ namespace RMSIDCUTILS.NetCommander
 
             Protocol = protocol;
         }
+
+        public static IPAddress GetLastOperationalNetwork()
+        {
+            IPAddress primaryAddress = null;
+
+            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface netInt in adapters)
+            {
+                if (netInt.OperationalStatus == OperationalStatus.Up)
+                {
+                    IPInterfaceProperties properties = netInt.GetIPProperties();
+
+                    foreach (IPAddressInformation addrInfo in properties.UnicastAddresses)
+                    {
+                        // Ignore loop-back addresses & IPv6 internet protocol family
+                        
+                        if (addrInfo.Address.AddressFamily != AddressFamily.InterNetworkV6 && !IPAddress.IsLoopback(addrInfo.Address))
+                        {
+                            Debug.Log(string.Format("Network Interface: {0}\tAddress: {1}", netInt.Name, addrInfo.Address));
+                            primaryAddress = addrInfo.Address;
+                        }
+                    }
+                }
+            }
+
+            return primaryAddress;
+        }
+
+        public static void DisplayComputerNetworkAddresses()
+        {
+            NetworkInterface[] adapters = NetworkInterface.GetAllNetworkInterfaces();
+            foreach (NetworkInterface netInt in adapters)
+            {
+                if (netInt.OperationalStatus == OperationalStatus.Up)
+                {
+                    IPInterfaceProperties properties = netInt.GetIPProperties();
+
+                    foreach (IPAddressInformation addrInfo in properties.UnicastAddresses)
+                    {
+                        // Ignore loop-back addresses & IPv6 internet protocol family
+                        // !IPAddress.IsLoopback(uniCast.Address)
+                        if (addrInfo.Address.AddressFamily != AddressFamily.InterNetworkV6)
+                        {
+
+                            Debug.Log(string.Format("Network Interface: {0}", netInt.Name));
+                            Debug.Log(string.Format("\tAddress: {0}", addrInfo.Address));
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static class Utils
+    {
+        public static string IPv4Address(this IPAddress address)
+        {
+            string myAddress = "127.0.0.1";
+
+            if(address != null && address.AddressFamily == AddressFamily.InterNetwork)
+            {
+                var byteAddress = address.GetAddressBytes();
+                myAddress = string.Format("{0}.{1}.{2}.{3}", byteAddress[0], byteAddress[1], byteAddress[2], byteAddress[3]);
+            }
+            return myAddress;
+        }
+
+        //public static long IPv4AddressLong(this IPAddress address)
+        //{
+        //    return (long)(uint)IPAddress.NetworkToHostOrder(
+        //                 (int)IPAddress.Parse(address).Address);
+        //}
     }
 }
