@@ -5,6 +5,9 @@ using System.Net;
 using UnityEngine;
 using UnityEngine.UI;
 
+// CTRL +M +L - Expand collapse all regions 
+
+
 namespace RMSIDCUTILS.NetCommander
 {
     public interface IPrimeNetService

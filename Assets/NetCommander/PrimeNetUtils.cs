@@ -63,10 +63,21 @@ namespace RMSIDCUTILS.NetCommander
                     // Ignore loop-back addresses & IPv6 internet protocol family
                     if (addrInfo.Address.AddressFamily != AddressFamily.InterNetworkV6)
                     {
-
+                        
                     }
                 }
             }
+        }
+
+        public static string IPv4Address(this IPAddress address)
+        {
+            string myAddress = "127.0.0.1";
+            if (address != null && address.AddressFamily == AddressFamily.InterNetwork)
+            {
+                var byteAddress = address.GetAddressBytes();
+                myAddress = string.Format("{0}.{1}.{2}.{3}", byteAddress[0], byteAddress[1], byteAddress[2], byteAddress[3]);
+            }
+            return myAddress;
         }
     }
 }

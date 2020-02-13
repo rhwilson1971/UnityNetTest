@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class UpdateCanvasElements : MonoBehaviour
 {
+    #region Properties
     public Dropdown _ConnectedClients;
     public Text _DisplayText;
     public InputField _MyMessage;
@@ -17,10 +18,10 @@ public class UpdateCanvasElements : MonoBehaviour
     private Color ColorConnect = new Color(0.082f, 0.651f, 0.267f, 1.0f);
     private Color ColorUnkown = new Color(1.0f, 0.851f, 0f, 1.0f);
     private Color ColorDisconnect = new Color(1.0f, 0.0f, 0f, 1.0f);
-
-
     private readonly int ServerBtnPosIndex = 0;
+    #endregion
 
+    #region Implementation
     // Start is called before the first frame update
     private void Start()
     {
@@ -460,4 +461,5 @@ public class UpdateCanvasElements : MonoBehaviour
             Debug.Log(_connectionList.Count);
         }
     }
+    #endregion
 }
