@@ -1,0 +1,276 @@
+fileFormatVersion: 2
+guid: cd084f084726a0b4c9e37ec8bc2d1180
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Body
+    100002: //RootNode
+    100004: 'CESSNA    '
+    100006: Cessna 150
+    100008: Cessna 152
+    100010: Elevator
+    100012: Group_001
+    100014: Group_002
+    100016: Group_005
+    100018: Group_008
+    100020: Group_009
+    100022: Group_010
+    100024: Group_012
+    100026: Group_014
+    100028: Wheel 1
+    100030: Wheel 2
+    100032: Windsheild
+    100034: Back Windshield
+    100036: Propellor
+    100038: Wheel
+    100040: Windshield
+    400000: Body
+    400002: //RootNode
+    400004: 'CESSNA    '
+    400006: Cessna 150
+    400008: Cessna 152
+    400010: Elevator
+    400012: Group_001
+    400014: Group_002
+    400016: Group_005
+    400018: Group_008
+    400020: Group_009
+    400022: Group_010
+    400024: Group_012
+    400026: Group_014
+    400028: Wheel 1
+    400030: Wheel 2
+    400032: Windsheild
+    400034: Back Windshield
+    400036: Propellor
+    400038: Wheel
+    400040: Windshield
+    2100000: No Name
+    2100002: dbl_Cessna 151
+    2100004: dbl_Cessna 152_0
+    2100006: dbl_Cessna 153
+    2100008: dbl_Cessna 152
+    2100010: dbl_Cessna 154
+    2100012: dbl_Cessna 155
+    2100014: dbl_Group_001
+    2100016: dbl_Group_002
+    2100018: dbl_Group_003
+    2100020: dbl_Group_004
+    2100022: dbl_Group_005
+    2100024: dbl_Group_006
+    2100026: dbl_Group_007
+    2100028: dbl_Group_008
+    2100030: dbl_Group_009
+    2100032: dbl_Group_010
+    2100034: dbl_Group_011
+    2100036: dbl_Group_012
+    2100038: dbl_Group_013
+    2100040: dbl_Group_014
+    2100042: dbl_Group_015
+    2100044: dbl_Group_016
+    2100046: dbl_Group_017
+    2100048: dbl_CESSNA     1
+    2100050: Body
+    2100052: Paint 1
+    2100054: Machine
+    2100056: Tire
+    2100058: Wheel
+    2100060: Metal
+    2100062: Blade
+    2100064: Glass
+    2100066: Interior
+    2300000: Body
+    2300002: 'CESSNA    '
+    2300004: Cessna 150
+    2300006: Cessna 152
+    2300008: Elevator
+    2300010: Group_001
+    2300012: Group_002
+    2300014: Group_005
+    2300016: Group_008
+    2300018: Group_009
+    2300020: Group_010
+    2300022: Group_012
+    2300024: Group_014
+    2300026: Wheel 1
+    2300028: Wheel 2
+    2300030: Windsheild
+    2300032: Back Windshield
+    2300034: //RootNode
+    2300036: Propellor
+    2300038: Wheel
+    2300040: Windshield
+    3300000: Body
+    3300002: 'CESSNA    '
+    3300004: Cessna 150
+    3300006: Cessna 152
+    3300008: Elevator
+    3300010: Group_001
+    3300012: Group_002
+    3300014: Group_005
+    3300016: Group_008
+    3300018: Group_009
+    3300020: Group_010
+    3300022: Group_012
+    3300024: Group_014
+    3300026: Wheel 1
+    3300028: Wheel 2
+    3300030: Windsheild
+    3300032: Back Windshield
+    3300034: //RootNode
+    3300036: Propellor
+    3300038: Wheel
+    3300040: Windshield
+    4300000: Elevator
+    4300002: Wheel 1
+    4300004: Wheel 2
+    4300006: Body
+    4300008: Windsheild
+    4300010: Cessna 150
+    4300012: Group_001
+    4300014: Group_002
+    4300016: Group_005
+    4300018: Group_008
+    4300020: Group_009
+    4300022: Group_010
+    4300024: Group_012
+    4300026: Group_014
+    4300028: Cessna 152
+    4300030: 'CESSNA    '
+    4300032: Wheel
+    4300034: Propellor
+    4300036: Back Windshield
+    4300038: Windshield
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Blade
+    second: {fileID: 2100000, guid: 462c0d9bc4ffce04ca9df26c380f82ed, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Body
+    second: {fileID: 2100000, guid: 79019d79ac5e6f044890bdd84221fa1a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Glass
+    second: {fileID: 2100000, guid: 64ddc64e2f41a9a41a18dbc22e877437, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Interior
+    second: {fileID: 2100000, guid: 3d32fa8bccadf2f4f9b320cc356167c4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Machine
+    second: {fileID: 2100000, guid: 56719484a3e37f14690a4926d5df7230, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Metal
+    second: {fileID: 2100000, guid: 8abbfb830b528c943b335a25e3d79de5, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: No Name
+    second: {fileID: 2100000, guid: 8c9c5ea6250252745a26c8badaf8276c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Paint 1
+    second: {fileID: 2100000, guid: 97e557b2769c2eb439924a397dbd85ed, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Tire
+    second: {fileID: 2100000, guid: 5aa4144b9d668ac45ac4164955bef4b1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Wheel
+    second: {fileID: 2100000, guid: 1a7dd15b6bc12ec4fa64d675aef90559, type: 2}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 0.52
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

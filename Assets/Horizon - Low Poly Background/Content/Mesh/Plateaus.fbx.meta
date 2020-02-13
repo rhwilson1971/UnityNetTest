@@ -1,0 +1,166 @@
+fileFormatVersion: 2
+guid: 0f1aedb6a2d0bae4191efd9178af92db
+ModelImporter:
+  serializedVersion: 23
+  fileIDToRecycleName:
+    100000: Cliff 1
+    100002: Cliff 2
+    100004: Cliff 3
+    100006: Cliff 4
+    100008: Cliff 5
+    100010: Large Plateau 1
+    100012: Large Plateau 2
+    100014: Large Plateau 3
+    100016: Large Plateau 4
+    100018: Large Plateau 5
+    100020: Layered Plateau 1
+    100022: Layered Plateau 2
+    100024: Layered Plateau 3
+    100026: Layered Plateau 4
+    100028: Layered Plateau 5
+    100030: //RootNode
+    400000: Cliff 1
+    400002: Cliff 2
+    400004: Cliff 3
+    400006: Cliff 4
+    400008: Cliff 5
+    400010: Large Plateau 1
+    400012: Large Plateau 2
+    400014: Large Plateau 3
+    400016: Large Plateau 4
+    400018: Large Plateau 5
+    400020: Layered Plateau 1
+    400022: Layered Plateau 2
+    400024: Layered Plateau 3
+    400026: Layered Plateau 4
+    400028: Layered Plateau 5
+    400030: //RootNode
+    2100000: No Name
+    2300000: Cliff 1
+    2300002: Cliff 2
+    2300004: Cliff 3
+    2300006: Cliff 4
+    2300008: Cliff 5
+    2300010: Large Plateau 1
+    2300012: Large Plateau 2
+    2300014: Large Plateau 3
+    2300016: Large Plateau 4
+    2300018: Large Plateau 5
+    2300020: Layered Plateau 1
+    2300022: Layered Plateau 2
+    2300024: Layered Plateau 3
+    2300026: Layered Plateau 4
+    2300028: Layered Plateau 5
+    3300000: Cliff 1
+    3300002: Cliff 2
+    3300004: Cliff 3
+    3300006: Cliff 4
+    3300008: Cliff 5
+    3300010: Large Plateau 1
+    3300012: Large Plateau 2
+    3300014: Large Plateau 3
+    3300016: Large Plateau 4
+    3300018: Large Plateau 5
+    3300020: Layered Plateau 1
+    3300022: Layered Plateau 2
+    3300024: Layered Plateau 3
+    3300026: Layered Plateau 4
+    3300028: Layered Plateau 5
+    4300000: Cliff 3
+    4300002: Cliff 4
+    4300004: Cliff 5
+    4300006: Cliff 2
+    4300008: Cliff 1
+    4300010: Layered Plateau 5
+    4300012: Layered Plateau 4
+    4300014: Layered Plateau 3
+    4300016: Layered Plateau 2
+    4300018: Layered Plateau 1
+    4300020: Large Plateau 5
+    4300022: Large Plateau 4
+    4300024: Large Plateau 3
+    4300026: Large Plateau 2
+    4300028: Large Plateau 1
+  externalObjects: {}
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 80
+    meshCompression: 0
+    addColliders: 0
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    preserveHierarchy: 0
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 0
+    previousCalculatedGlobalScale: 1
+    hasPreviousCalculatedGlobalScale: 0
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    serializedVersion: 2
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    rootMotionBoneName: 
+    rootMotionBoneRotation: {x: 0, y: 0, z: 0, w: 1}
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  humanoidOversampling: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
